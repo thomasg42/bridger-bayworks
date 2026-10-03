@@ -163,6 +163,15 @@
       inner.classList.toggle('is-pinned', inner.offsetHeight <= media.offsetHeight + 1);
     };
 
+    // The clip can't load (error, Low Power Mode, dead network): drop the long scroll track,
+    // but only while the visitor is still at the top, so nothing they are reading jumps.
+    // Further down, the poster simply stays pinned for the rest of the track.
+    var giveUp = function () {
+      if (ready || !hero.classList.contains('is-scrub')) return;
+      var top = parseFloat(window.getComputedStyle(media).top) || 0;
+      if (hero.getBoundingClientRect().top >= top - 1) hero.classList.remove('is-scrub');
+    };
+
     var markReady = function () {
       if (primed) return;
       primed = true;
@@ -171,11 +180,9 @@
         if (finished) return;
         finished = true;
         heroVideo.pause();
-        // Grow the scroll track only while the content after the hero is still off-screen,
-        // so nothing the visitor is reading jumps. Too late: the poster simply stays.
-        if (hero.getBoundingClientRect().bottom <= window.innerHeight) return;
-        hero.classList.add('is-scrub');
         ready = true;
+        // A slow clip that arrives after giveUp gets its track back if the visitor is still at the top.
+        if (!hero.classList.contains('is-scrub') && hero.getBoundingClientRect().top >= (parseFloat(window.getComputedStyle(media).top) || 0) - 1) hero.classList.add('is-scrub');
         fitCopy();
         drawFrame();
         readScroll();
@@ -188,17 +195,25 @@
       var playback = heroVideo.play();
       if (playback && typeof playback.then === 'function') playback.then(finishAfterFirstFrame, finish);
       else finishAfterFirstFrame();
+      window.setTimeout(finish, 1500); // the data is here; don't wait forever on a play() that never settles
     };
 
     heroVideo.addEventListener('loadeddata', markReady, { once: true });
     heroVideo.addEventListener('seeked', drawFrame);
+    heroVideo.addEventListener('error', giveUp);
     window.addEventListener('scroll', readScroll, { passive: true });
     window.addEventListener('resize', function () {
-      if (!ready) return;
       fitCopy();
+      if (!ready) return;
       drawFrame();
       readScroll();
     }, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCopy); // web fonts change the copy height
+
+    // The scroll track is there from the first paint (like the Kraken hero), so the page never
+    // grows under the visitor once the clip is ready.
+    hero.classList.add('is-scrub');
+    fitCopy();
     if (rmq.addEventListener) {
       rmq.addEventListener('change', function () {
         if (rmq.matches) heroCanvas.classList.remove('is-ready'); // back to the still poster
@@ -211,7 +226,8 @@
     heroVideo.setAttribute('src', heroVideo.getAttribute('data-src'));
     // iOS only fetches media data once playback is requested; markReady pauses it on the first frame.
     var request = heroVideo.play();
-    if (request && request.catch) request.catch(function () {}); // Low Power Mode etc.: the poster stays
+    if (request && request.catch) request.catch(function () {}); // Low Power Mode etc.: seeking still works once data loads
+    window.setTimeout(function () { if (!primed) giveUp(); }, 6000); // never got a frame
     if (heroVideo.readyState >= 2) markReady();
   }
 

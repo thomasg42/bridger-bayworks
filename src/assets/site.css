@@ -191,19 +191,19 @@ main { position: relative; }
   display: flex; align-items: center; padding: 56px 0;
 }
 .hero-inner.is-pinned { position: sticky; top: var(--header-h); }
-/* Text sits right, over Max's plain wall; the lift action on the left stays clear. */
+/* The text overlaps the lift action (Kraken-style, left). A light tint, never a solid panel,
+   so the clip visibly runs behind the words; heavier only where the words sit. */
 .hero-inner::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background:
-  linear-gradient(270deg, rgba(20, 28, 51, .93) 0%, rgba(20, 28, 51, .82) 36%, rgba(20, 28, 51, .3) 62%, rgba(20, 28, 51, .12) 100%),
-  linear-gradient(0deg, rgba(20, 28, 51, .55) 0%, rgba(20, 28, 51, 0) 38%); }
-.hero-inner > .wrap { display: flex; justify-content: flex-end; }
+  linear-gradient(90deg, rgba(20, 28, 51, .78) 0%, rgba(20, 28, 51, .62) 45%, rgba(20, 28, 51, .26) 75%, rgba(20, 28, 51, .3) 100%),
+  linear-gradient(0deg, rgba(20, 28, 51, .5) 0%, rgba(20, 28, 51, 0) 35%); }
+.hero-inner > .wrap { display: flex; justify-content: flex-start; }
 .hero-copy { max-width: 620px; }
-.hero h1 { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
-.hero .kicker, .hero .lead, .hero .hero-hours { text-shadow: 0 1px 12px rgba(10, 16, 32, .65); }
+.hero h1 { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .45); }
+.hero .kicker, .hero .lead, .hero .hero-hours { text-shadow: 0 1px 3px rgba(10, 16, 32, .85), 0 0 14px rgba(10, 16, 32, .6); }
 @media (max-width: 1080px) {
-  /* Tall and narrow screens: the text sits low over a bottom-up scrim, the lift shows above it. */
+  /* Tall and narrow screens: the text sits low over a bottom-up tint, the lift shows above it. */
   .hero-inner { align-items: flex-end; padding: 40px 0 44px; }
-  .hero-inner > .wrap { justify-content: flex-start; }
-  .hero-inner::before { background: linear-gradient(0deg, rgba(20, 28, 51, .93) 0%, rgba(20, 28, 51, .8) 45%, rgba(20, 28, 51, .55) 78%, rgba(20, 28, 51, .4) 100%); }
+  .hero-inner::before { background: linear-gradient(0deg, rgba(20, 28, 51, .9) 0%, rgba(20, 28, 51, .74) 50%, rgba(20, 28, 51, .58) 85%, rgba(20, 28, 51, .4) 100%); }
 }
 @media (max-width: 760px) {
   /* Phones: keep the copy clear of the fixed call/text/reserve bar. */
