@@ -8,7 +8,7 @@ Multi-page SEO site for a rent-a-bay DIY garage at 201 S Weaver St, Building A, 
 
 ## Current visual refresh (2026-10-03, Lane 2 Codex)
 
-Local review complete; publication pending. See [visual refresh and QA](review/00-CURRENT-visual-refresh.md), [asset prompts](review/2026-10-03-generation-prompts.json), and the before snapshot under review/. Photo-led sections, real Bridger Mountains, compact connected steps, clear Call/Text buttons, stable rates, and symptom-to-reservation prefills. Existing v1 hero video now has a split layout and pause control. Backend still unconfigured; text/email handoff is explicit.
+Published to the GitHub Pages review preview with Thomas’s approval on 2026-10-03. Local review records, generation prompts, and before snapshots are retained privately and excluded from deployment. Photo-led sections, real Bridger Mountains, compact connected steps, clear Call/Text buttons, stable rates, and symptom-to-reservation prefills. Existing v1 hero video now has a split layout and pause control. Backend still unconfigured; text/email handoff is explicit.
 
 ## How it is built
 
