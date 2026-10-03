@@ -2,8 +2,8 @@
 // "How it works" raises a car on a two-post lift, one step at a time.
 
 export const STEPS = [
-  ['Reserve a bay', 'Book online, by phone, or in person.'],
-  ['Bring your project', 'Car, truck, or SUV. All are welcome.'],
+  ['Tell Max your plan', 'Choose your job and hours. Send your request to Max.'],
+  ['Confirm your bay', 'Max confirms your time and price. Then bring your vehicle and parts.'],
   ['Use our equipment', 'Lifts, tools, and a clean workspace.'],
   ['Get it done', 'Work at your own pace with our crew nearby if you need help.'],
 ];
@@ -36,7 +36,7 @@ const liftSvg = `<svg class="lift-svg" viewBox="0 0 400 260" role="img" aria-lab
 
 export function liftStory(ctx, { heading = 'How it <span class="blue">works</span>', headingTag = 'h2', ctaText = 'Start with step one' } = {}) {
   const steps = STEPS.map(([t, d], i) =>
-    `<li class="lift-step${i === 0 ? ' is-active' : ''}" data-step="${i}"><span class="lift-n" aria-hidden="true">${i + 1}</span><div><h3>${t}</h3><p>${d}</p></div></li>`).join('');
+    `<li class="lift-step${i === 0 ? ' is-active' : ''}" data-step="${i}"><span class="lift-n" aria-hidden="true">${i + 1}</span><div><h3>${t}</h3><p>${d}</p></div><span class="step-arrow" aria-hidden="true">→</span></li>`).join('');
   return `<section class="lift-story" data-lift-story aria-labelledby="lift-title">
   <div class="lift-sticky">
     <div class="wrap">
@@ -45,7 +45,7 @@ export function liftStory(ctx, { heading = 'How it <span class="blue">works</spa
         <${headingTag} id="lift-title">${heading}</${headingTag}>
       </div>
       <div class="lift-grid">
-        <div class="lift-visual">${liftSvg}<div class="lift-meter" aria-hidden="true"><span data-lift-meter></span></div></div>
+        <div class="lift-visual"><img class="process-photo" src="${ctx.asset('photos/shop-lift.jpg')}" alt="The professional blue lift at Bridger Bayworks" width="1050" height="1400" loading="lazy"><span class="photo-label">Your workspace in Belgrade</span><div class="lift-blueprint" aria-hidden="true">${liftSvg}</div><div class="lift-meter" aria-hidden="true"><span data-lift-meter></span></div></div>
         <div class="lift-copy">
           <ol class="lift-steps">${steps}</ol>
           <a class="btn btn-royal" href="${ctx.reserve()}"><span>${ctaText}</span>${ctx.icon('arrow')}</a>
@@ -64,13 +64,46 @@ export function serviceCards(ctx) {
     ['gear', 'A Clean, Well-Equipped Shop', 'Lifts, workbenches, compressors and more. Spacious bays for any size project.', '7 days a week', 'how-it-works', 'See how it works'],
   ];
   return `<div class="cards">${cards.map(([ic, t, d, chip, href, more], i) => `
-    <a class="card reveal" style="--i:${i}" href="${ctx.link(href)}">
-      <span class="card-ico">${ctx.icon(ic)}</span>
+    <a class="card service-card reveal" style="--i:${i}" href="${ctx.link(href)}">
+      <div class="card-photo"><img src="${ctx.asset('photos/' + ['shop-lift', 'tools', 'diagnostics', 'shop-door'][i] + '.jpg')}" alt="${['Blue two-post lift at Bridger Bayworks', 'Illustration of workshop tools and impact guns', 'Illustration of a brake inspection', 'Bridger Bayworks shop entrance'][i]}" width="768" height="512" loading="lazy"><span class="photo-label">${[ 'The actual shop', 'Illustrative equipment', 'Illustrative scene', 'The actual shop'][i]}</span><span class="card-photo-icon">${ctx.icon(ic)}</span></div>
       <h3>${t}</h3>
       <p>${d}</p>
       <span class="card-foot"><span class="chip">${chip}</span><span class="card-more">${more}${ctx.icon('arrow')}</span></span>
     </a>`).join('')}
   </div>`;
+}
+
+export function diagnosticScene(ctx) {
+  return `<section class="section diagnostic-section" aria-label="Tell Max what your car is doing">
+    <div class="wrap diagnostic-grid">
+      <figure class="diagnostic-photo reveal">
+        <img src="${ctx.asset('photos/diagnostics.jpg')}" alt="Illustrative scene of two people pointing out a worn brake rotor, with oil draining into a catch pan" width="1536" height="1024" loading="lazy">
+        <figcaption>Illustrative diagnostic scene</figcaption>
+        <span class="inspection-marker marker-brake" aria-hidden="true"></span>
+        <span class="inspection-marker marker-oil" aria-hidden="true"></span>
+      </figure>
+      <div class="diagnostic-copy reveal">
+        <p class="kicker kicker-light">A sound. A leak. A warning light.</p>
+        <h2>See what’s <span class="blue-light">going on.</span></h2>
+        <p>Tell Max what you’re noticing. Find out which bay, tools, and support fit your project.</p>
+        <div class="symptom-list">
+          <a href="${ctx.reserve({service:'diagnostics', symptom:'rattle'})}"><span class="symptom-icon rattle">${ctx.icon('engine')}</span><span><strong>Rattles &amp; noises</strong><small>When does it happen?</small></span>${ctx.icon('arrow')}</a>
+          <a href="${ctx.reserve({service:'diagnostics', symptom:'leak'})}"><span class="symptom-icon oil-drop">${ctx.icon('drop')}</span><span><strong>Oil spots &amp; leaks</strong><small>What are you seeing underneath?</small></span>${ctx.icon('arrow')}</a>
+          <a href="${ctx.reserve({service:'diagnostics', symptom:'brakes'})}"><span class="symptom-icon brake-ring">${ctx.icon('gear')}</span><span><strong>Worn brakes</strong><small>Describe the noise or feel.</small></span>${ctx.icon('arrow')}</a>
+        </div>
+        <a class="btn btn-yellow" href="${ctx.reserve({service:'diagnostics'})}"><span>Talk through your project</span>${ctx.icon('arrow')}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
+export function communityScene(ctx) {
+  return `<section class="community-feature section" aria-label="A place for local mechanics and DIYers">
+    <div class="wrap community-feature-grid">
+      <div class="reveal"><p class="kicker kicker-light">Good people. Shared know-how.</p><h2>Local mechanics.<br>Weekend wrenchers.<br><span class="blue-light">Your kind of people.</span></h2><p class="section-lead">We support our local mechanics and the people who want to work on their own cars. Bring your project, share what you know, and learn something along the way.</p><a class="btn btn-yellow" href="${ctx.reserve()}"><span>Find your bay</span>${ctx.icon('arrow')}</a></div>
+      <figure class="community-photo reveal"><img src="${ctx.asset('photos/community.jpg')}" alt="Illustration of three car enthusiasts sharing knowledge around a pickup engine" width="1536" height="1024" loading="lazy"><figcaption>Illustrative community scene</figcaption></figure>
+    </div>
+  </section>`;
 }
 
 export function whyList(ctx) {

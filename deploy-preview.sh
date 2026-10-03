@@ -36,7 +36,8 @@ fi
 gh auth setup-git >/dev/null 2>&1 || true   # lets git push over HTTPS with the gh login
 
 echo "4/5 Pushing..."
-rsync -a --delete --exclude .git --exclude node_modules --exclude .DS_Store "$SRC/" "$WORK/"
+# review/ (local before-snapshots, prompts) and .claude/ (harness tracking) never go public.
+rsync -a --delete --exclude .git --exclude node_modules --exclude .DS_Store --exclude .claude --exclude review "$SRC/" "$WORK/"
 cd "$WORK"
 git checkout -q -B main   # a fresh empty clone may start on "master"
 git add -A

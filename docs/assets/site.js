@@ -32,6 +32,8 @@
   function countUp(el) {
     var target = parseFloat(el.getAttribute('data-count'));
     var prefix = el.getAttribute('data-prefix') || '';
+    // Prices must be readable and accurate at every frame, including while scrolling.
+    if (prefix === '$') return;
     if (!motionOK || !isFinite(target)) return;
     var start = null, dur = 900;
     var step = function (t) {
@@ -79,8 +81,9 @@
       stories.forEach(function (s) {
         var r = s.getBoundingClientRect();
         if (r.bottom < -vh || r.top > vh * 2) return;
-        var travel = Math.max(1, r.height - vh);
-        var p = clamp(-r.top / travel, 0, 1);
+        // Progress through the compact section without an empty multi-screen spacer.
+        var travel = Math.max(1, r.height + vh * 0.2);
+        var p = clamp((vh * 0.75 - r.top) / travel, 0, 1);
         var load = s.querySelector('[data-lift-load]');
         var shadow = s.querySelector('.lift-shadow');
         var meter = s.querySelector('[data-lift-meter]');
@@ -107,8 +110,11 @@
     var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
     var saveData = typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
     var heroInView = true;
+    var manuallyPaused = false;
+    var videoToggle = document.querySelector('[data-video-toggle]');
+    if (videoToggle && !(rmq && rmq.matches) && !saveData) videoToggle.hidden = false;
     var heroPlay = function () {
-      if ((rmq && rmq.matches) || saveData || !heroInView) return;
+      if ((rmq && rmq.matches) || saveData || !heroInView || manuallyPaused) return;
       if (!heroVideo.getAttribute('src')) heroVideo.setAttribute('src', heroVideo.getAttribute('data-src'));
       heroVideo.muted = true;
       var pr = heroVideo.play();
@@ -126,6 +132,12 @@
         if (heroInView) heroPlay(); else heroVideo.pause();
       }, { threshold: 0.1 }).observe(heroVideo);
     }
+    if (videoToggle) videoToggle.addEventListener('click', function () {
+      manuallyPaused = !manuallyPaused;
+      videoToggle.setAttribute('aria-pressed', String(manuallyPaused));
+      videoToggle.textContent = manuallyPaused ? 'Play shop video' : 'Pause shop video';
+      if (manuallyPaused) heroVideo.pause(); else heroPlay();
+    });
     heroPlay();
   }
 
@@ -150,6 +162,8 @@
       send.setAttribute('href', base + '?' + Core.planQuery(p));
     };
     [hours, tools, impact, coolant].forEach(function (el) { el.addEventListener('input', render); el.addEventListener('change', render); });
+    // Browsers may restore form controls after scripts run during Back navigation.
+    window.addEventListener('pageshow', function () { window.setTimeout(render, 0); });
     render();
   }
 
@@ -175,6 +189,9 @@
     if (pre.tools) f('tools').checked = true;
     if (pre.impact) f('impact').checked = true;
     if (pre.coolant) f('coolant').checked = true;
+    var symptom = new URLSearchParams(window.location.search).get('symptom');
+    var symptomCopy = { rattle: 'I am noticing a rattle or unusual noise. It happens when: ', leak: 'I am noticing oil spots or a fluid leak. Here is what I see: ', brakes: 'I would like to check my brakes. Here is what I notice: ' };
+    if (Object.prototype.hasOwnProperty.call(symptomCopy, symptom) && !f('details').value) f('details').value = symptomCopy[symptom];
     if (pre.hours && CFG.rates && CFG.showPrices && !f('details').value) {
       var e = Core.estimate(CFG.rates, pre);
       f('details').value = 'Plan: ' + Core.planLine(CFG.rates, pre) + ' (estimate $' + e.total + ').\n';

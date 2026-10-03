@@ -5,7 +5,7 @@ import {
   ridge, crumbs, pageHero, ctaBand, businessSchema, breadcrumbSchema, serviceSchema,
   faqSchema, faqList,
 } from './layout.mjs';
-import { liftStory, serviceCards, whyList, ratesStrip, planBuilder, rateTable } from './components.mjs';
+import { liftStory, serviceCards, whyList, ratesStrip, planBuilder, rateTable, diagnosticScene, communityScene } from './components.mjs';
 
 // Shared FAQ answers. Prices read from config so a rate change cannot leave a stale answer.
 function faqs(ctx) {
@@ -51,7 +51,7 @@ const home = {
     <img class="hero-poster" src="${ctx.asset('hero/shop-lift-poster.jpg')}" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
     <video class="hero-video" data-hero-video data-src="${ctx.asset('hero/shop-lift-hero.mp4')}" poster="${ctx.asset('hero/shop-lift-poster.jpg')}" muted loop playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
     <div class="hero-scrim"></div>
-    ${ridge('dark')}
+    <span class="hero-film-label">The shop in motion <span>AI visualization</span></span>
   </div>
   <div class="wrap hero-inner">
     <div class="hero-copy">
@@ -60,11 +60,13 @@ const home = {
       <p class="lead">Rent a professional lift, quality tools, and a clean bay to work on your own car or truck. Open 7 days a week, a short drive from Bozeman.</p>
       <div class="btn-row">
         <a class="btn btn-yellow btn-lg btn-brush" href="${ctx.reserve()}"><span>Reserve a Bay</span></a>
-        <a class="btn btn-ghost-light btn-lg" href="${ctx.tel}">${ctx.icon('phone')}<span>Call or text Max</span></a>
+        <a class="btn btn-ghost-light" href="${ctx.tel}">${ctx.icon('phone')}<span>Call Max</span></a><a class="hero-text-link" href="${ctx.sms}">${ctx.icon('chat')}Text Max</a>
       </div>
+      <p class="hero-hours">${ctx.icon('clock')} ${SITE.hoursNote}</p><button class="video-toggle" type="button" data-video-toggle aria-pressed="false" hidden>Pause shop video</button>
     </div>
   </div>
 </section>
+<div class="shop-strip"><div class="wrap"><span>${ctx.icon('pin')}Belgrade, Montana</span><span>${ctx.icon('lift')}Professional lifts</span><span>${ctx.icon('wrench')}Tools on site</span><a href="${ctx.link('rates')}">See shop rates ${ctx.icon('arrow')}</a></div></div>
 
 <section class="section section-paper" aria-labelledby="get-title">
   <div class="wrap">
@@ -76,6 +78,8 @@ const home = {
     ${serviceCards(ctx)}
   </div>
 </section>
+
+${diagnosticScene(ctx)}
 
 ${liftStory(ctx)}
 
@@ -97,27 +101,17 @@ ${liftStory(ctx)}
     <div class="section-head reveal">
       <p class="kicker">A clean, well-equipped space to work on your ride</p>
       <h2 id="why-title">Why work <span class="blue">here</span></h2>
-      <p class="section-lead">Stop lying on cold concrete. Get the car in the air, grab the right tool, and get it done.</p>
+      <p class="section-lead">Get the car in the air, grab the right tool, and get it done.</p>
+      <figure class="shop-detail"><img src="${ctx.asset('photos/shop-door.jpg')}" alt="Open bay door at Bridger Bayworks" width="750" height="1000" loading="lazy"><figcaption>201 S Weaver St, Building A</figcaption></figure>
       <a class="btn btn-royal" href="${ctx.reserve()}"><span>Reserve a bay</span>${ctx.icon('arrow')}</a>
     </div>
     ${whyList(ctx)}
   </div>
 </section>
 
-<section class="section section-white community" aria-labelledby="community-title">
-  <div class="wrap split">
-    <div class="reveal">
-      <p class="kicker">Cars. Community. Higher ground.</p>
-      <h2 id="community-title">More than a garage. <span class="blue">A community.</span></h2>
-      <p class="section-lead">Bridger Bayworks is a place for people who love working on their own vehicles. Whether it’s routine maintenance or a bigger project, we provide the space, tools, and community to help you get it done.</p>
-      <a class="text-link" href="${ctx.link('about')}">Meet the community${ctx.icon('arrow')}</a>
-    </div>
-    <ul class="pillars">
-      <li class="reveal" style="--i:0">${ctx.icon('people')}<div><h3>Meet like-minded enthusiasts</h3><p>Cars, trucks, motorcycles, and more.</p></div></li>
-      <li class="reveal" style="--i:1">${ctx.icon('mountain')}<div><h3>Build your skills</h3><p>Learn, share, and tackle new projects.</p></div></li>
-      <li class="reveal" style="--i:2">${ctx.icon('wrench')}<div><h3>Keep cars on the road</h3><p>A stronger, more independent car community.</p></div></li>
-    </ul>
-  </div>
+${communityScene(ctx)}
+<section class="mountain-window" aria-label="Snow-covered Bridger Mountains">
+  <div class="wrap"><p>Cars. Community. Higher ground.</p><span>The Bridger Mountains, Montana</span><a href="${ctx.link('about')}">Meet the community ${ctx.icon('arrow')}</a></div>
 </section>
 
 <section class="section section-paper" aria-labelledby="faq-title">
@@ -260,6 +254,7 @@ ${pageHero(ctx, {
       <p class="kicker">Quality tools on site</p>
       <h2>What’s in the <span class="blue">shop</span></h2>
     </div>
+    <figure class="equipment-banner reveal"><img src="${ctx.asset('photos/shop-lift.jpg')}" alt="The lift and work area inside Bridger Bayworks" width="1050" height="1400" loading="lazy"><figcaption>Inside Bridger Bayworks. Ask Max about the specific tool your job needs.</figcaption></figure>
     <div class="cards cards-3">
       <div class="card card-static reveal" style="--i:0"><span class="card-ico">${ctx.icon('toolbox')}</span><h3>Toolbox access</h3><p>Quality hand tools on site, so the job doesn’t stall on a missing socket.</p><span class="card-foot"><span class="chip">${ctx.price('tools', '/hr')}</span></span></div>
       <div class="card card-static reveal" style="--i:1"><span class="card-ico">${ctx.icon('impact')}</span><h3>1/2" and 3/8" impact guns</h3><p>For lug nuts, suspension bolts, and anything rusted tight.</p><span class="card-foot"><span class="chip">${ctx.price('impact', '/hr')}</span></span></div>
@@ -319,6 +314,8 @@ ${pageHero(ctx, {
   lead: 'Check engine light on? Use our scan tools and equipment to find the problem, then fix it on a lift.',
   cta: 'Ask Max about diagnostics', ctaParams: { service: 'diagnostics' },
 })}
+
+${diagnosticScene(ctx)}
 
 <section class="section section-paper">
   <div class="wrap">
@@ -485,6 +482,8 @@ ${pageHero(ctx, {
   lead: 'A place for people who love working on their own vehicles.',
   cta: 'Talk to Max',
 })}
+
+${communityScene(ctx)}
 
 <section class="section section-paper">
   <div class="wrap split">
@@ -678,8 +677,8 @@ const reserve = {
           <textarea id="f-details" name="details" required maxlength="2000" rows="5" placeholder="Brakes and rotors on the front, first time doing it myself."></textarea>
         </div>
         <div class="field full">
-          <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>Send to Max</span></button>
-          <p class="fine">Max uses this to get back to you about your request.</p>
+          <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>${SITE.leadEndpoint ? 'Send to Max' : 'Prepare text or email'}</span></button>
+          <p class="fine">${SITE.leadEndpoint ? 'Max uses this to get back to you about your request.' : 'Next, send your request through your text or email app. Your bay is confirmed when Max replies.'}</p>
         </div>
       </form>
       <noscript><p class="panel panel-warn">This form needs JavaScript. Call or text Max at <a href="${ctx.tel}">${SITE.phone.display}</a>.</p></noscript>

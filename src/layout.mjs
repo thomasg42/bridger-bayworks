@@ -45,26 +45,7 @@ export function makeCtx(SITE, slug, opts = {}) {
 
 // Layered ridge + pine treeline, the brochure's footer motif. Deterministic so builds diff cleanly.
 export function ridge(variant = 'light') {
-  const W = 1440, H = 220;
-  let seed = 7;
-  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-  const tree = (x, h, w) => {
-    const b = H, t = b - h, m = b - h * 0.48, n = b - h * 0.2;
-    return `M${x} ${t}L${x + w * 0.42} ${m}L${x + w * 0.2} ${m}L${x + w * 0.55} ${n}L${x + w * 0.3} ${n}L${x + w * 0.62} ${b}L${x - w * 0.62} ${b}L${x - w * 0.3} ${n}L${x - w * 0.55} ${n}L${x - w * 0.2} ${m}L${x - w * 0.42} ${m}Z`;
-  };
-  let trees = '';
-  for (let x = -10; x < W + 20; x += 18 + rnd() * 26) {
-    const edge = Math.min(x, W - x) / W;           // taller at the edges, like the brochure
-    const h = 46 + rnd() * 40 + (0.5 - edge) * 70;
-    trees += tree(Math.round(x), Math.round(h), Math.round(h * 0.42));
-  }
-  const far = 'M0 150L120 104L210 132L330 70L420 118L540 84L640 128L760 58L880 112L990 80L1100 126L1220 66L1330 112L1440 92L1440 220L0 220Z';
-  const mid = 'M0 176L150 120L250 160L380 96L470 150L600 110L720 164L860 92L960 150L1080 118L1200 166L1320 120L1440 150L1440 220L0 220Z';
-  const snow = 'M330 70L312 82L322 80L330 88L338 79L348 84Z M760 58L740 72L752 70L760 78L768 69L780 74Z M1220 66L1202 78L1212 76L1220 84L1228 75L1238 80Z';
-  const c = variant === 'dark'
-    ? { far: '#2A3766', mid: '#22305C', snow: '#3B4A80', trees: '#141C33' }
-    : { far: '#C9D3EE', mid: '#A9B9E3', snow: '#EEF1FA', trees: '#5B74BD' };
-  return `<svg class="ridge" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><path fill="${c.far}" d="${far}"/><path fill="${c.snow}" d="${snow}"/><path fill="${c.mid}" d="${mid}"/><path fill="${c.trees}" d="${trees}"/></svg>`;
+  return `<div class="ridge ridge-${variant}" aria-hidden="true"></div>`;
 }
 
 // Stand-in brand mark drawn from the flyer's peaks. Swap for Max's master logo when he sends it.
@@ -183,17 +164,21 @@ export function crumbs(ctx, name) {
 
 // Page header band for every inner page (the home hero is reserved for Higgsfield).
 export function pageHero(ctx, { kicker, h1, lead, cta, ctaParams, secondary = true }) {
-  return `<section class="page-hero">
+  const photos = { 'lift-rental': ['shop-lift', 'The blue lift inside Bridger Bayworks', 'Inside Bridger Bayworks'], 'tool-rental': ['tools', 'Illustration of sockets, impact guns and a workshop lift', 'Illustrative equipment'], diagnostics: ['diagnostics', 'Illustration of two people inspecting a brake rotor on a lift', 'Illustrative diagnostic scene'], about: ['bridger-mountains', 'The snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'], 'how-it-works': ['shop-door', 'The open entrance to Bridger Bayworks', 'Bring your project'], rates: ['shop-lift', 'The lift at Bridger Bayworks', 'Your time. Your project.'], 'diy-garage-bozeman': ['bridger-mountains', 'Snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'] };
+  const photo = photos[ctx.slug];
+  return `<section class="page-hero${photo ? ' page-hero-photo' : ''}">
   <div class="wrap page-hero-inner">
-    <p class="kicker kicker-light">${kicker}</p>
-    <h1>${h1}</h1>
-    <p class="lead">${lead}</p>
-    <div class="btn-row">
-      <a class="btn btn-yellow btn-lg" href="${ctx.reserve(ctaParams)}"><span>${cta}</span></a>
-      ${secondary ? `<a class="btn btn-ghost-light btn-lg" href="${ctx.tel}">${ctx.icon('phone')}<span>Call or text Max</span></a>` : ''}
+    <div class="page-hero-copy">
+      <p class="kicker kicker-light">${kicker}</p>
+      <h1>${h1}</h1><p class="lead">${lead}</p>
+      <div class="btn-row">
+        <a class="btn btn-yellow btn-lg" href="${ctx.reserve(ctaParams)}"><span>${cta}</span></a>
+        ${secondary ? `<a class="btn btn-ghost-light" href="${ctx.tel}">${ctx.icon('phone')}<span>Call Max</span></a><a class="hero-text-link" href="${ctx.sms}">${ctx.icon('chat')}Text Max</a>` : ''}
+      </div>
+      <p class="hero-hours">${ctx.icon('clock')} ${ctx.SITE.hoursNote}</p>
     </div>
+    ${photo ? `<figure class="page-hero-photo-frame"><img src="${ctx.asset('photos/' + photo[0] + '.jpg')}" alt="${photo[1]}" width="1536" height="1024" fetchpriority="high"><figcaption>${photo[2]}</figcaption></figure>` : ''}
   </div>
-  ${ridge('dark')}
 </section>`;
 }
 
@@ -260,7 +245,7 @@ function footer(ctx) {
       </div>
     </div>
     <div class="wrap legal">
-      <span>&copy; ${year} ${SITE.name}</span>
+      <span>&copy; ${year} ${SITE.name}</span><a class="photo-credit" href="https://commons.wikimedia.org/wiki/File:BridgerMountains2009.jpg" target="_blank" rel="noopener">Bridger Mountains photo: Mike Cline / public domain</a>
       <span class="tagline-dots">Cars <i></i> Community <i></i> Higher Ground</span>
     </div>
   </div>

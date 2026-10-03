@@ -502,7 +502,7 @@ a.side-link:hover b { color: var(--royal); }
 
 /* ---------- scroll reveal ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  .js .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
+  .js .reveal { opacity: 1; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 90ms); }
   .js .reveal.is-in { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -511,3 +511,170 @@ a.side-link:hover b { color: var(--royal); }
 @media print {
   .site-header, .mobile-bar, .cta-band, .ridge { display: none !important; }
 }
+
+/* 2026-10-03: photo-led shop refresh. Real Bridger Mountains, compact scroll journey. */
+:root { --radius: 10px; }
+.section { padding: clamp(46px, 6vw, 78px) 0; }
+.section-head { margin-bottom: 28px; }
+.section-white { background: #e9edf3; }
+.section-paper { background-image: linear-gradient(90deg, #c4ccd522 1px, transparent 1px), linear-gradient(#c4ccd522 1px, transparent 1px); background-size: 48px 48px; }
+.hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: stretch; min-height: 600px; padding: 0; background: #101c32; }
+.hero-media { position: relative; inset: auto; z-index: 0; min-width: 0; margin: 30px 0 30px 30px; border-radius: 12px; border: 1px solid #ffffff25; box-shadow: 0 25px 60px #0005; }
+.hero-poster, .hero-video { object-fit: cover; object-position: 30% center; }
+.hero-scrim { background: linear-gradient(0deg,#091423c9,transparent 24%); }
+.hero-inner { width: auto; padding: 60px clamp(24px, 4vw, 70px) 50px 40px; align-items: center; background: linear-gradient(100deg,#101c32f5,#101c32d9), url('photos/bridger-mountains.jpg') center 22%/cover; }
+.hero h1 { font-size: clamp(2.8rem,4.6vw,4.8rem); }
+.hero .lead { font-size: 1.12rem; line-height: 1.65; }
+.hero-copy { max-width: 570px; }
+.hero-film-label { position: absolute; bottom: 22px; left: 22px; right: 18px; color: #fff; font: 600 .75rem/1.5 var(--body); text-transform: uppercase; letter-spacing: .13em; }
+.hero-film-label span { display: block; font-size: .64rem; opacity: .75; margin-top: 4px; }
+.hero-hours { display: flex; gap: 8px; align-items: center; margin: 24px 0 0; color: #c5d2ea; font-size: .9rem; }
+.hero-text-link { display: inline-flex; align-items: center; gap: 7px; color: #fff; font-weight: 600; text-underline-offset: 5px; }
+.hero-text-link:hover { color: var(--yellow); }
+.shop-strip { background: var(--yellow); padding: 16px 0; color: #15213b; }
+.shop-strip .wrap { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+.shop-strip span, .shop-strip a { display: inline-flex; gap: 10px; align-items: center; font-size: .93rem; font-weight: 600; }
+.shop-strip a { color: #15213b; }
+.ridge { background: linear-gradient(0deg,#0b172dcc,#12213910), url('photos/bridger-mountains.jpg') center 24%/cover; height: 100%; bottom: 0; opacity: .9; }
+.cta-band { padding: 96px 0; background: #14203a; }
+.cta-band .ridge { background-image: linear-gradient(90deg,#101b32e6,#101b3270),url('photos/bridger-mountains.jpg'); }
+.cta-inner { position: relative; z-index: 1; }
+.page-hero { padding: 78px 0 42px; background: linear-gradient(110deg,#14213ae8,#14213aaf),url('photos/bridger-mountains.jpg') center 25%/cover; }
+.page-hero-photo .page-hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 45px; align-items: center; }
+.page-hero h1 { font-size: clamp(2.7rem,4.1vw,4.3rem); }
+.page-hero-photo-frame { margin: 0; height: 370px; position: relative; overflow: hidden; border-radius: 10px; border: 1px solid #ffffff35; }
+.page-hero-photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.page-hero-photo-frame figcaption, .equipment-banner figcaption, .community-photo figcaption, .diagnostic-photo figcaption, .shop-detail figcaption { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px 18px 12px; background: linear-gradient(transparent,#081221d9); color: #fff; font-size: .74rem; }
+.page-hero-photo-frame figcaption { padding-top: 45px; }
+.service-card { padding: 0 0 20px; overflow: hidden; border: 0; background: #fff; }
+.service-card > h3, .service-card > p, .service-card > .card-foot { margin-left: 20px; margin-right: 20px; }
+.service-card > h3 { font-size: 1.65rem; margin-top: 17px; }
+.service-card > p { font-size: .98rem; }
+.card-photo { position: relative; height: 195px; background: #17273d; overflow: hidden; }
+.card-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; transition: transform .5s; }
+.service-card:hover .card-photo img { transform: scale(1.04); }
+.photo-label { position: absolute; left: 12px; bottom: 10px; color: white; background: #111d30dc; padding: 5px 8px; font-size: .65rem; letter-spacing: .04em; }
+.card-photo-icon { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; display: grid; place-items: center; background: var(--yellow); border-radius: 6px; color: var(--navy-900); }
+.card-foot { flex-wrap: wrap; gap: 14px; }
+.card-more { font-size: .84rem; }
+.card-photo .photo-label { bottom: 0; left: 0; border-top-right-radius: 6px; }
+.diagnostic-section { background: #112239; color: #d5dfed; }
+.diagnostic-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-items: center; }
+.diagnostic-photo { margin: 0; position: relative; height: 520px; overflow: hidden; border-radius: 12px; }
+.diagnostic-photo img { width: 100%; height: 100%; object-fit: cover; }
+.diagnostic-copy h2, .community-feature h2 { color: #fff; }
+.symptom-list { display: grid; margin: 24px 0; }
+.symptom-list a { display: flex; align-items: center; gap: 14px; color: #fff; text-decoration: none; padding: 15px 0; border-top: 1px solid #ffffff26; }
+.symptom-list a > .ico { margin-left: auto; }
+.symptom-list a:hover strong { color: var(--yellow); }
+.symptom-list strong { display: block; font-family: var(--display); text-transform: uppercase; font-size: 1.35rem; letter-spacing: .02em; }
+.symptom-list small { display: block; color: #b5c6db; font-size: .85rem; }
+.symptom-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; background: #ffffff0c; color: var(--yellow); flex: none; }
+.inspection-marker { position: absolute; width: 17px; height: 17px; border: 2px solid var(--yellow); box-shadow: 0 0 0 7px #f2c23033; border-radius: 50%; }
+.marker-brake { top: 40%; left: 51%; }
+.marker-oil { top: 84%; left: 63%; }
+@media (prefers-reduced-motion: no-preference) {
+ .diagnostic-section:has(.is-in) .rattle .ico { animation: rattle 3s 2; }
+ .diagnostic-section:has(.is-in) .oil-drop .ico { animation: oil-drip 3s 2; }
+ .diagnostic-section:has(.is-in) .inspection-marker { animation: inspect-pulse 3s 2; }
+}
+@keyframes rattle { 0%,30%,100% { transform: rotate(0); } 6%,18% { transform: rotate(-9deg); } 12%,24% { transform: rotate(9deg); } }
+@keyframes oil-drip { 0%,40%,100% { transform: translateY(0); opacity: 1; } 25% { transform: translateY(7px); opacity: .25; } }
+@keyframes inspect-pulse { 50% { box-shadow: 0 0 0 14px #f2c23008; } }
+.lift-story, .js .lift-story { height: auto; padding: 58px 0; background: #e5eaf0; }
+.lift-sticky, .js .lift-sticky { position: relative; top: auto; min-height: 0; padding: 0; display: block; }
+.lift-grid { grid-template-columns: 1fr 1.05fr; gap: 45px; }
+.lift-visual { position: relative; padding: 0; border-radius: 12px; overflow: hidden; max-width: none; width: 100%; border: 1px solid #c8d2df; background: #182a44; }
+.process-photo { width: 100%; height: 420px; object-fit: cover; object-position: center 40%; }
+.lift-blueprint { position: absolute; right: 12px; bottom: 30px; width: 150px; background: #e7eef6e8; border-radius: 8px; padding: 8px; }
+.lift-visual .photo-label { bottom: auto; top: 14px; }
+.lift-meter { margin: 0; border-radius: 0; height: 7px; }
+.lift-steps { gap: 5px; }
+.lift-step, .js .lift-step { position: relative; opacity: 1; border: 1px solid #c6d2df; background: #f9fafc; padding: 15px 17px; border-radius: 9px; }
+.lift-step p, .lift-step.is-active p { display: block; font-size: .94rem; line-height: 1.4; }
+.lift-step h3 { margin-top: 1px; font-size: 1.4rem; }
+.lift-step .step-arrow { position: absolute; bottom: -16px; right: 27px; z-index: 2; font-size: 28px; color: var(--royal); transform: rotate(90deg); }
+.lift-step:last-child .step-arrow { display: none; }
+.js .lift-step.is-active { border-color: #496cb0; background: #fff; box-shadow: -4px 0 0 var(--yellow); }
+.shop-detail { position: relative; margin: 25px 0; height: 235px; overflow: hidden; border-radius: 10px; }
+.shop-detail img { width: 100%; height: 100%; object-fit: cover; object-position: center 39%; }
+.why { gap: 12px; }
+.why li { padding: 17px; background: #fff; border: 1px solid #d6dfeb; border-radius: 10px; }
+.community-feature { background: #253e5b; color: #e1e8f0; }
+.community-feature-grid { display: grid; grid-template-columns: .95fr 1.15fr; gap: 50px; align-items: center; }
+.community-feature h2 { font-size: clamp(2.3rem,3.5vw,3.5rem); }
+.community-feature .section-lead { color: #d6e1ed; }
+.community-photo { position: relative; margin: 0; height: 425px; overflow: hidden; border-radius: 10px; }
+.community-photo img { width: 100%; height: 100%; object-fit: cover; }
+.community { padding-top: 40px; padding-bottom: 40px; }
+.equipment-banner { position: relative; margin: 0 0 30px; height: 330px; overflow: hidden; border-radius: 10px; }
+.equipment-banner img { width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
+.flow li:not(:last-child)::after { content: '→'; position: absolute; right: -23px; top: 32px; color: var(--royal); font-size: 32px; z-index: 2; }
+.flow li { position: relative; }
+.towns { background: linear-gradient(#182942bd,#182942e6),url('photos/bridger-mountains.jpg') center 20%/cover; color: #e8edf7; border: 0; }
+.towns .towns-h, .towns a, .towns .towns-foot { color: #fff; }
+.rates-strip .num { display: inline; color: var(--yellow); font-weight: 800; }
+.photo-credit { font-size: .7rem; }
+@media (max-width: 1080px) {
+ .hero { grid-template-columns: 1fr 1fr; min-height: 530px; }
+ .hero-media { margin: 20px 0 20px 20px; }
+ .hero-inner { padding: 35px 25px; }
+ .hero h1 { font-size: 3.1rem; }
+ .diagnostic-grid, .community-feature-grid { gap: 28px; }
+ .card-photo { height: 230px; }
+}
+@media (max-width: 760px) {
+ .hero { display: flex; flex-direction: column; min-height: 0; }
+ .hero-media { margin: 14px 14px 0; aspect-ratio: 16/9; min-height: 0; border-radius: 8px; }
+ .hero-poster, .hero-video { object-fit: cover; object-position: center; }
+ .hero-inner { width: 100%; padding: 27px 22px 32px; }
+ .hero h1 { font-size: clamp(2.5rem,8vw,3.5rem); }
+ .hero .lead { font-size: 1.04rem; margin-bottom: 10px; }
+ .hero .btn-row { gap: 12px; }
+ .hero .btn-row .btn-yellow { width: 100%; }
+ .hero .btn-row .btn-ghost-light { flex: 1; }
+ .hero-text-link { padding: 10px; }
+ .hero-hours { margin-top: 18px; font-size: .82rem; }
+ .shop-strip { padding: 13px 0; }
+ .shop-strip .wrap { gap: 10px; }
+ .shop-strip span, .shop-strip a { font-size: .76rem; width: calc(50% - 6px); gap: 6px; }
+ .hero-film-label { font-size: .65rem; bottom: 14px; left: 14px; }
+ .hero-film-label span { font-size: .6rem; }
+ .page-hero { padding: 62px 0 28px; }
+ .page-hero-photo .page-hero-inner, .diagnostic-grid, .community-feature-grid { grid-template-columns: 1fr; gap: 24px; }
+ .page-hero h1 { font-size: 2.7rem; }
+ .page-hero-photo-frame { height: 260px; }
+ .page-hero-photo .page-hero-copy { order: 1; }
+ .page-hero-photo-frame { order: 0; margin-top: 0; }
+ .page-hero-photo .hero-hours { margin-top: 17px; }
+ .section { padding: 42px 0; }
+ .diagnostic-photo { height: 330px; }
+ .diagnostic-copy h2 { font-size: 2.8rem; }
+ .lift-story, .js .lift-story { padding: 42px 0; }
+ .lift-grid { grid-template-columns: 1fr; gap: 20px; }
+ .process-photo { height: 280px; }
+ .lift-visual { max-width: none; }
+ .lift-head h2 { font-size: 2.4rem; }
+ .lift-step p, .js .lift-step p { display: block; }
+ .lift-step, .js .lift-step { padding: 14px; }
+ .community-photo { height: 320px; }
+ .equipment-banner { height: 270px; }
+ .flow li:not(:last-child)::after { display: none; }
+ .cta-band { padding: 66px 0; }
+ .section-head { margin-bottom: 23px; }
+ .card-photo { height: 230px; }
+ .service-card { padding-bottom: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .service-card:hover .card-photo img { transform: none; }
+ .inspection-marker, .symptom-icon .ico { animation: none !important; }
+}
+
+/* Content is always visible; scroll adds movement without blank panels. */
+.video-toggle { display: inline-block; margin-top: 15px; border: 1px solid #b8cae255; border-radius: 6px; background: #142037; color: #dce7f7; padding: 8px 12px; font: inherit; font-size: .78rem; cursor: pointer; }
+.video-toggle[hidden] { display: none; }
+.mountain-window { min-height: 260px; padding: 46px 0; color: #fff; display: flex; align-items: flex-end; background: linear-gradient(0deg,#0e233dde,transparent 90%),url('photos/bridger-mountains.jpg') center 24%/cover; }
+.mountain-window p { font: 800 clamp(2rem,4vw,3.3rem)/1 var(--display); text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 2px 10px #0006; }
+.mountain-window span { display: block; font-size: .8rem; color: #e7eef5; }
+.mountain-window a { display: inline-flex; gap: 8px; color: var(--yellow); margin-top: 12px; font-weight: 600; }
+@media (max-width:760px) { .mountain-window { min-height: 230px; background-position: 60% 20%; } }
