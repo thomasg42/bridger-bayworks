@@ -168,7 +168,7 @@ test('signature move: the lift story is on home and how-it-works with four steps
   }
 });
 
-test('hero: Higgsfield clip with poster-first loading; h1 and both CTAs intact', () => {
+test('hero: Higgsfield clip with poster-first loading, text over the clip, scroll-scrubbed; h1 and both CTAs intact', () => {
   const d = pages.find((p) => p.rel === 'index.html').document;
   const hero = d.querySelector('[data-hero-slot="higgsfield"]');
   assert.ok(hero && hero.querySelector('.hero-media'));
@@ -179,10 +179,15 @@ test('hero: Higgsfield clip with poster-first loading; h1 and both CTAs intact',
   assert.equal(media.getAttribute('aria-hidden'), 'true', 'decorative');
   assert.ok(media.querySelector('img.hero-poster[src*="shop-lift-poster.jpg"]'), 'poster renders with no JS');
   const v = media.querySelector('video[data-hero-video]');
-  assert.ok(v && v.getAttribute('data-src').includes('shop-lift-hero.mp4'));
+  assert.ok(v && v.getAttribute('data-src').includes('shop-lift-hero-scrub.mp4'), 'keyframe-dense encode for scrubbing');
   assert.ok(!v.hasAttribute('src') && !v.hasAttribute('autoplay'), 'video downloads only after JS checks reduced-motion');
-  for (const a of ['muted', 'loop', 'playsinline']) assert.ok(v.hasAttribute(a), a);
+  assert.ok(!v.hasAttribute('loop'), 'the scroll is the play head; the clip never loops on its own');
+  for (const a of ['muted', 'playsinline']) assert.ok(v.hasAttribute(a), a);
   assert.equal(v.getAttribute('tabindex'), '-1');
+  assert.ok(media.querySelector('canvas[data-hero-canvas]'), 'frames are drawn to a canvas (Safari play-icon fix)');
+  assert.ok(hero.querySelector('.hero-inner .hero-copy h1'), 'copy sits in the overlay layer');
+  assert.ok(!hero.querySelector('.hero-film-label'), 'no "shop in motion / AI visualization" label');
+  assert.ok(!d.querySelector('[data-video-toggle]'), 'no pause button: nothing autoplays');
 });
 
 test('reserve form contract (what site-qa will hammer)', () => {

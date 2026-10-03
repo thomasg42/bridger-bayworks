@@ -161,32 +161,56 @@ main { position: relative; }
 /* ---------- ridge motif ---------- */
 .ridge { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: clamp(90px, 14vw, 200px); pointer-events: none; }
 
-/* ---------- home hero: RESERVED FOR HIGGSFIELD (see HERO-SLOT.md) ---------- */
+/* ---------- home hero: full-bleed shop clip with the text over it (see HERO-SLOT.md) ---------- */
+/* .hero is the scroll track. The clip pins under the header; once site.js has the video ready it
+   adds .is-scrub, the track grows by --hero-scrub, and scrolling scrubs the clip. The copy pins
+   with the clip when it fits one screen (.is-pinned), otherwise it scrolls up over the pinned clip. */
 .hero {
-  position: relative; isolation: isolate; overflow: hidden;
-  min-height: min(88svh, 820px); display: flex; align-items: center;
-  padding: 72px 0 150px; color: #fff;
-  background: radial-gradient(120% 90% at 80% 10%, #33467F 0%, var(--navy-800) 55%, var(--navy-900) 100%);
+  --hero-stage: max(420px, calc(100vh - var(--header-h)));
+  --hero-scrub: 150vh;
+  position: relative; isolation: isolate; color: #fff; background: var(--navy-900);
 }
-.hero-media { position: absolute; inset: 0; z-index: -1; background: var(--navy-900); overflow: hidden; }
-.hero-poster, .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%; pointer-events: none; }
-.hero-video { opacity: 0; transition: opacity .6s ease; }
-.hero-video.is-playing { opacity: 1; }
+@supports (height: 100svh) {
+  .hero { --hero-stage: max(420px, calc(100svh - var(--header-h))); --hero-scrub: 150svh; }
+}
+.hero.is-scrub::after { content: ''; display: block; height: var(--hero-scrub); }
+.hero-media { position: sticky; top: var(--header-h); z-index: 0; height: var(--hero-stage); overflow: hidden; background: var(--navy-900); }
+.hero-poster, .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 43% 50%; pointer-events: none; }
+.hero-canvas { opacity: 0; transition: opacity .4s ease; }
+.hero-canvas.is-ready { opacity: 1; }
+/* Safari can paint a play icon over a paused video, so the decoder stays offscreen and
+   site.js draws its frames onto the canvas (same as the GMM hero). */
+.hero-video { position: fixed; left: -100px; top: -100px; width: 1px; height: 1px; opacity: 0; clip-path: inset(50%); pointer-events: none; }
+.hero-video::-webkit-media-controls,
+.hero-video::-webkit-media-controls-panel,
+.hero-video::-webkit-media-controls-start-playback-button,
+.hero-video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; opacity: 0; pointer-events: none; }
+.hero-inner {
+  position: relative; z-index: 1; isolation: isolate;
+  margin-top: calc(-1 * var(--hero-stage)); min-height: var(--hero-stage);
+  display: flex; align-items: center; padding: 56px 0;
+}
+.hero-inner.is-pinned { position: sticky; top: var(--header-h); }
 /* Text sits right, over Max's plain wall; the lift action on the left stays clear. */
-.hero-scrim { position: absolute; inset: 0; background:
+.hero-inner::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background:
   linear-gradient(270deg, rgba(20, 28, 51, .93) 0%, rgba(20, 28, 51, .82) 36%, rgba(20, 28, 51, .3) 62%, rgba(20, 28, 51, .12) 100%),
   linear-gradient(0deg, rgba(20, 28, 51, .55) 0%, rgba(20, 28, 51, 0) 38%); }
-.hero-inner { display: flex; justify-content: flex-end; }
+.hero-inner > .wrap { display: flex; justify-content: flex-end; }
 .hero-copy { max-width: 620px; }
 .hero h1 { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
-@media (max-width: 760px) {
-  /* Phones: show the whole 16:9 clip above the text instead of cropping the action away. */
-  .hero { display: block; min-height: 0; padding: 0; }
-  .hero-media { position: relative; inset: auto; z-index: 0; aspect-ratio: 16 / 9; }
-  .hero-scrim { background: linear-gradient(0deg, rgba(20, 28, 51, .45) 0%, rgba(20, 28, 51, 0) 40%); }
-  .hero-media .ridge { display: none; }
-  .hero-inner { display: block; padding: 26px 0 44px; }
+.hero .kicker, .hero .lead, .hero .hero-hours { text-shadow: 0 1px 12px rgba(10, 16, 32, .65); }
+@media (max-width: 1080px) {
+  /* Tall and narrow screens: the text sits low over a bottom-up scrim, the lift shows above it. */
+  .hero-inner { align-items: flex-end; padding: 40px 0 44px; }
+  .hero-inner > .wrap { justify-content: flex-start; }
+  .hero-inner::before { background: linear-gradient(0deg, rgba(20, 28, 51, .93) 0%, rgba(20, 28, 51, .8) 45%, rgba(20, 28, 51, .55) 78%, rgba(20, 28, 51, .4) 100%); }
 }
+@media (max-width: 760px) {
+  /* Phones: keep the copy clear of the fixed call/text/reserve bar. */
+  .hero-inner { padding: 28px 0 calc(64px + env(safe-area-inset-bottom) + 24px); }
+  .hero-inner > .wrap { width: calc(100% - 44px); }
+}
+@media print { .hero.is-scrub::after, .hero-canvas { display: none; } }
 .hero .lead { color: #E6EBF8; }
 
 /* ---------- inner page hero ---------- */
@@ -518,16 +542,9 @@ a.side-link:hover b { color: var(--royal); }
 .section-head { margin-bottom: 28px; }
 .section-white { background: #e9edf3; }
 .section-paper { background-image: linear-gradient(90deg, #c4ccd522 1px, transparent 1px), linear-gradient(#c4ccd522 1px, transparent 1px); background-size: 48px 48px; }
-.hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: stretch; min-height: 600px; padding: 0; background: #101c32; }
-.hero-media { position: relative; inset: auto; z-index: 0; min-width: 0; margin: 30px 0 30px 30px; border-radius: 12px; border: 1px solid #ffffff25; box-shadow: 0 25px 60px #0005; }
-.hero-poster, .hero-video { object-fit: cover; object-position: 30% center; }
-.hero-scrim { background: linear-gradient(0deg,#091423c9,transparent 24%); }
-.hero-inner { width: auto; padding: 60px clamp(24px, 4vw, 70px) 50px 40px; align-items: center; background: linear-gradient(100deg,#101c32f5,#101c32d9), url('photos/bridger-mountains.jpg') center 22%/cover; }
 .hero h1 { font-size: clamp(2.8rem,4.6vw,4.8rem); }
 .hero .lead { font-size: 1.12rem; line-height: 1.65; }
 .hero-copy { max-width: 570px; }
-.hero-film-label { position: absolute; bottom: 22px; left: 22px; right: 18px; color: #fff; font: 600 .75rem/1.5 var(--body); text-transform: uppercase; letter-spacing: .13em; }
-.hero-film-label span { display: block; font-size: .64rem; opacity: .75; margin-top: 4px; }
 .hero-hours { display: flex; gap: 8px; align-items: center; margin: 24px 0 0; color: #c5d2ea; font-size: .9rem; }
 .hero-text-link { display: inline-flex; align-items: center; gap: 7px; color: #fff; font-weight: 600; text-underline-offset: 5px; }
 .hero-text-link:hover { color: var(--yellow); }
@@ -616,18 +633,11 @@ a.side-link:hover b { color: var(--royal); }
 .rates-strip .num { display: inline; color: var(--yellow); font-weight: 800; }
 .photo-credit { font-size: .7rem; }
 @media (max-width: 1080px) {
- .hero { grid-template-columns: 1fr 1fr; min-height: 530px; }
- .hero-media { margin: 20px 0 20px 20px; }
- .hero-inner { padding: 35px 25px; }
  .hero h1 { font-size: 3.1rem; }
  .diagnostic-grid, .community-feature-grid { gap: 28px; }
  .card-photo { height: 230px; }
 }
 @media (max-width: 760px) {
- .hero { display: flex; flex-direction: column; min-height: 0; }
- .hero-media { margin: 14px 14px 0; aspect-ratio: 16/9; min-height: 0; border-radius: 8px; }
- .hero-poster, .hero-video { object-fit: cover; object-position: center; }
- .hero-inner { width: 100%; padding: 27px 22px 32px; }
  .hero h1 { font-size: clamp(2.5rem,8vw,3.5rem); }
  .hero .lead { font-size: 1.04rem; margin-bottom: 10px; }
  .hero .btn-row { gap: 12px; }
@@ -638,8 +648,6 @@ a.side-link:hover b { color: var(--royal); }
  .shop-strip { padding: 13px 0; }
  .shop-strip .wrap { gap: 10px; }
  .shop-strip span, .shop-strip a { font-size: .76rem; width: calc(50% - 6px); gap: 6px; }
- .hero-film-label { font-size: .65rem; bottom: 14px; left: 14px; }
- .hero-film-label span { font-size: .6rem; }
  .page-hero { padding: 62px 0 28px; }
  .page-hero-photo .page-hero-inner, .diagnostic-grid, .community-feature-grid { grid-template-columns: 1fr; gap: 24px; }
  .page-hero h1 { font-size: 2.7rem; }
@@ -671,8 +679,6 @@ a.side-link:hover b { color: var(--royal); }
 }
 
 /* Content is always visible; scroll adds movement without blank panels. */
-.video-toggle { display: inline-block; margin-top: 15px; border: 1px solid #b8cae255; border-radius: 6px; background: #142037; color: #dce7f7; padding: 8px 12px; font: inherit; font-size: .78rem; cursor: pointer; }
-.video-toggle[hidden] { display: none; }
 .mountain-window { min-height: 260px; padding: 46px 0; color: #fff; display: flex; align-items: flex-end; background: linear-gradient(0deg,#0e233dde,transparent 90%),url('photos/bridger-mountains.jpg') center 24%/cover; }
 .mountain-window p { font: 800 clamp(2rem,4vw,3.3rem)/1 var(--display); text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 2px 10px #0006; }
 .mountain-window span { display: block; font-size: .8rem; color: #e7eef5; }

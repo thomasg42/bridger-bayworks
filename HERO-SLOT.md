@@ -1,11 +1,13 @@
 # Home hero slot (Higgsfield)
 
-**Status 2026-10-03: DONE (v1).** Lane 2 Codex rendered a 6 s, 1280x720 silent clip from Max's real shop (IMG_7028 viewpoint, Kling v3.0 standard, 17 credits, logged). Deck + QA: `../marketing/shop-lift-hero/`. Lane 1 Claude Code inserted it as `src/assets/hero/shop-lift-hero.mp4` + `shop-lift-poster.jpg` (SHA256 matches Codex's QA). How it behaves:
+**Status 2026-10-03 (latest, Lane 1 Claude Code): full-bleed + scroll scrub.** At Thomas's request the text now sits over the clip on every screen size, the "The shop in motion / AI visualization" label is gone, and scrolling scrubs the clip (it never plays on its own, so the old pause button is gone too). Same behaviour on phones. Previous split layout: `review/2026-10-03-before-hero-overlay/`.
 
-- The poster `<img>` paints first (no JS needed). JS attaches the video source only when reduced-motion is off and Save-Data is off, then fades it in over the poster. It pauses when the hero leaves the screen, and it drops back to the poster if playback is rejected or the motion preference changes.
-- Desktop: the text block sits right, over Max's plain wall, behind a navy scrim; the lift action on the left stays clear.
-- Phones (760 px and narrower): the full 16:9 clip sits above the text instead of being cropped to the middle third.
+- **Clip:** `src/assets/hero/shop-lift-hero-scrub.mp4`, a re-encode of the unchanged v1 clip with a keyframe every 3 frames (`ffmpeg -i shop-lift-hero.mp4 -an -c:v libx264 -preset slow -crf 24 -pix_fmt yuv420p -profile:v high -g 3 -keyint_min 3 -sc_threshold 0 -bf 0 -movflags +faststart`), 3.2 MB. A one-keyframe file can't be scrubbed smoothly. The original `shop-lift-hero.mp4` (SHA256 `296bb4fd…6a53`) stays as the source.
+- **Scrubber:** a port of the Gold Mobile Mechanic hero (`site.js`, `bootHeroScrub`). The video decodes offscreen and frames are drawn to a canvas, because Safari can paint a play icon over a paused video. Poster first. The clip loads only when reduced-motion and Save-Data are off. If it never becomes ready (Low Power Mode, error, slow network after the visitor has scrolled past), the poster simply stays.
+- **Layout:** `.hero` is the scroll track. The clip pins under the header; once ready, the track grows by `--hero-scrub` (150svh, one CSS variable to tune the scroll length). The copy pins with the clip when it fits one screen; when it doesn't (small or sideways phones), it scrolls up over the pinned clip instead of being cut off. Desktop: text right over Max's plain wall. 1080 px and narrower: text low over a bottom-up scrim, clear of the phone call/text/reserve bar.
 - The clip is illustrative (AI-varied hands, clothing, plates). Never caption it as a real job or as staffed repair service.
+
+Earlier status (superseded): v1 inserted 2026-10-03 by Lane 1, then put in a framed split hero with a pause button by Lane 2 Codex's visual refresh. Lane 2 Codex rendered the 6 s, 1280x720 silent clip from Max's real shop (IMG_7028 viewpoint, Kling v3.0 standard, 17 credits, logged). Deck + QA: `../marketing/shop-lift-hero/`.
 
 The rest of this file is the original spec, kept for a v2 (for example 1080p, or a mobile portrait cut).
 

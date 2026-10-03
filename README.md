@@ -6,7 +6,11 @@ Multi-page SEO site for a rent-a-bay DIY garage at 201 S Weaver St, Building A, 
 - **Repo:** `thomasg42/bridger-bayworks`, Pages from `main` → `/docs`
 - **Deploy:** `bash deploy-preview.sh` from Thomas's Terminal (builds, tests, pushes, enables Pages)
 
-## Current visual refresh (2026-10-03, Lane 2 Codex)
+## Current hero (2026-10-03, Lane 1 Claude Code)
+
+At Thomas's request: the home hero text now sits over the full-bleed shop clip on desktop and phones, the "shop in motion / AI visualization" label is gone, and scrolling scrubs the clip (GMM scrubber port, keyframe-dense re-encode, no autoplay, so the pause button is gone). Nothing else on the site changed. Details and tuning: `HERO-SLOT.md`. Split-layout version kept at `review/2026-10-03-before-hero-overlay/`.
+
+## Visual refresh (2026-10-03, Lane 2 Codex)
 
 Published to the GitHub Pages review preview with Thomas’s approval on 2026-10-03. Local review records, generation prompts, and before snapshots are retained privately and excluded from deployment. Photo-led sections, real Bridger Mountains, compact connected steps, clear Call/Text buttons, stable rates, and symptom-to-reservation prefills. Existing v1 hero video now has a split layout and pause control. Backend still unconfigured; text/email handoff is explicit.
 
@@ -75,5 +79,5 @@ Unique title (60 chars max) and description (110 to 160) per page, canonical, Op
 
 ## Verification status
 
-- 23 automated tests pass (2026-10-03): build reproducibility, SEO contract per page, link integrity, path-to-Max on every page, no em/en dashes, no UNCONFIRMED claims, price switch, sitemap/robots, signature move, hero (poster-first, no autoplay before the motion check, h1 + CTAs intact), form contract, core logic, and form behaviour (empty submit, no-backend handoff, success, 500 failure, double submit, honeypot) in a DOM shim.
+- 23 automated tests pass (2026-10-03): build reproducibility, SEO contract per page, link integrity, path-to-Max on every page, no em/en dashes, no UNCONFIRMED claims, price switch, sitemap/robots, signature move, hero (poster-first, no autoplay before the motion check, scrub clip + canvas, no film label or pause button, h1 + CTAs intact), form contract, core logic, and form behaviour (empty submit, no-backend handoff, success, 500 failure, double submit, honeypot) in a DOM shim.
 - **Browser-verified locally by Codex on 2026-10-03.** Nine routes at desktop/mobile sizes; no overflow or broken loaded images. Required site-qa has 24 PASS, 2 SKIP and 2 backend happy-path FAILs because this is still an explicit text/email handoff. See the current review record; production launch is not verified.

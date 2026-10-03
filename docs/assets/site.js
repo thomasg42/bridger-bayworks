@@ -104,41 +104,115 @@
     update();
   }
 
-  // ---------- home hero video: poster first, video only when motion is welcome ----------
-  var heroVideo = document.querySelector('[data-hero-video]');
-  if (heroVideo) {
-    var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-    var saveData = typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
-    var heroInView = true;
-    var manuallyPaused = false;
-    var videoToggle = document.querySelector('[data-video-toggle]');
-    if (videoToggle && !(rmq && rmq.matches) && !saveData) videoToggle.hidden = false;
-    var heroPlay = function () {
-      if ((rmq && rmq.matches) || saveData || !heroInView || manuallyPaused) return;
-      if (!heroVideo.getAttribute('src')) heroVideo.setAttribute('src', heroVideo.getAttribute('data-src'));
-      heroVideo.muted = true;
-      var pr = heroVideo.play();
-      if (pr && pr.catch) pr.catch(function () { heroVideo.classList.remove('is-playing'); }); // poster stays
+  // ---------- home hero: scrolling scrubs the shop clip (port of the GMM hero scrubber) ----------
+  // Poster first. The clip downloads only when motion is welcome and Save-Data is off; the
+  // scroll is the play head, the video never plays on its own.
+  var hero = document.querySelector('[data-hero-slot]');
+  var heroVideo = hero && hero.querySelector('[data-hero-video]');
+  var heroCanvas = hero && hero.querySelector('[data-hero-canvas]');
+  var heroCtx = heroCanvas && heroCanvas.getContext && heroCanvas.getContext('2d', { alpha: false });
+  var saveData = typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
+  if (heroVideo && heroCtx && motionOK && !saveData) bootHeroScrub();
+
+  function bootHeroScrub() {
+    var media = hero.querySelector('.hero-media');
+    var inner = hero.querySelector('.hero-inner');
+    var rmq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var targetProgress = 0, displayedProgress = 0, frame = 0, ready = false, primed = false;
+
+    var drawFrame = function () {
+      if (rmq.matches || heroVideo.readyState < 2 || !heroVideo.videoWidth) return;
+      var density = Math.min(window.devicePixelRatio || 1, 2);
+      var w = Math.max(1, Math.round(heroCanvas.clientWidth * density));
+      var h = Math.max(1, Math.round(heroCanvas.clientHeight * density));
+      if (heroCanvas.width !== w) heroCanvas.width = w;
+      if (heroCanvas.height !== h) heroCanvas.height = h;
+      var scale = Math.max(w / heroVideo.videoWidth, h / heroVideo.videoHeight);
+      var vw = heroVideo.videoWidth * scale, vh = heroVideo.videoHeight * scale;
+      // Same crop as the poster's object-position (43% 50%), so the swap is seamless.
+      heroCtx.drawImage(heroVideo, (w - vw) * 0.43, (h - vh) * 0.5, vw, vh);
+      heroCanvas.classList.add('is-ready');
     };
-    heroVideo.addEventListener('playing', function () { heroVideo.classList.add('is-playing'); });
-    if (rmq && rmq.addEventListener) {
+
+    var seek = function () {
+      frame = 0;
+      var duration = heroVideo.duration;
+      if (!ready || rmq.matches || !isFinite(duration) || duration <= 0) return;
+      displayedProgress += (targetProgress - displayedProgress) * 0.22;
+      if (Math.abs(targetProgress - displayedProgress) < 0.0005) displayedProgress = targetProgress;
+      var safeEnd = Math.max(0, duration - 0.04);
+      var wantedTime = displayedProgress * safeEnd;
+      if (!heroVideo.seeking && Math.abs(heroVideo.currentTime - wantedTime) > 0.018) heroVideo.currentTime = wantedTime;
+      var caughtUp = displayedProgress === targetProgress && !heroVideo.seeking &&
+        Math.abs(heroVideo.currentTime - targetProgress * safeEnd) <= 0.024;
+      if (!caughtUp) frame = requestAnimationFrame(seek);
+    };
+
+    var readScroll = function () {
+      if (!ready) return;
+      var rect = hero.getBoundingClientRect();
+      var top = parseFloat(window.getComputedStyle(media).top) || 0; // the header height the clip pins under
+      var scrollable = hero.offsetHeight - media.offsetHeight;
+      targetProgress = scrollable > 0 ? Math.min(1, Math.max(0, (top - rect.top) / scrollable)) : 0;
+      if (!frame) frame = requestAnimationFrame(seek);
+    };
+
+    // The copy pins with the clip only when it fits one screen; a taller copy (small or
+    // sideways phones) scrolls up over the pinned clip instead of being cut off.
+    var fitCopy = function () {
+      inner.classList.toggle('is-pinned', inner.offsetHeight <= media.offsetHeight + 1);
+    };
+
+    var markReady = function () {
+      if (primed) return;
+      primed = true;
+      var finished = false;
+      var finish = function () {
+        if (finished) return;
+        finished = true;
+        heroVideo.pause();
+        // Grow the scroll track only while the content after the hero is still off-screen,
+        // so nothing the visitor is reading jumps. Too late: the poster simply stays.
+        if (hero.getBoundingClientRect().bottom <= window.innerHeight) return;
+        hero.classList.add('is-scrub');
+        ready = true;
+        fitCopy();
+        drawFrame();
+        readScroll();
+      };
+      var finishAfterFirstFrame = function () {
+        if (typeof heroVideo.requestVideoFrameCallback === 'function') heroVideo.requestVideoFrameCallback(finish);
+        else requestAnimationFrame(function () { requestAnimationFrame(finish); });
+        window.setTimeout(finish, 800); // in case the offscreen decoder never reports a frame
+      };
+      var playback = heroVideo.play();
+      if (playback && typeof playback.then === 'function') playback.then(finishAfterFirstFrame, finish);
+      else finishAfterFirstFrame();
+    };
+
+    heroVideo.addEventListener('loadeddata', markReady, { once: true });
+    heroVideo.addEventListener('seeked', drawFrame);
+    window.addEventListener('scroll', readScroll, { passive: true });
+    window.addEventListener('resize', function () {
+      if (!ready) return;
+      fitCopy();
+      drawFrame();
+      readScroll();
+    }, { passive: true });
+    if (rmq.addEventListener) {
       rmq.addEventListener('change', function () {
-        if (rmq.matches) { heroVideo.pause(); heroVideo.classList.remove('is-playing'); } else heroPlay();
+        if (rmq.matches) heroCanvas.classList.remove('is-ready'); // back to the still poster
+        else { drawFrame(); readScroll(); }
       });
     }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) {
-        heroInView = es[0].isIntersecting;
-        if (heroInView) heroPlay(); else heroVideo.pause();
-      }, { threshold: 0.1 }).observe(heroVideo);
-    }
-    if (videoToggle) videoToggle.addEventListener('click', function () {
-      manuallyPaused = !manuallyPaused;
-      videoToggle.setAttribute('aria-pressed', String(manuallyPaused));
-      videoToggle.textContent = manuallyPaused ? 'Play shop video' : 'Pause shop video';
-      if (manuallyPaused) heroVideo.pause(); else heroPlay();
-    });
-    heroPlay();
+
+    heroVideo.muted = true;
+    heroVideo.preload = 'auto';
+    heroVideo.setAttribute('src', heroVideo.getAttribute('data-src'));
+    // iOS only fetches media data once playback is requested; markReady pauses it on the first frame.
+    var request = heroVideo.play();
+    if (request && request.catch) request.catch(function () {}); // Low Power Mode etc.: the poster stays
+    if (heroVideo.readyState >= 2) markReady();
   }
 
   // ---------- plan builder (rates page) ----------

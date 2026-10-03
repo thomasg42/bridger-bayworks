@@ -45,15 +45,16 @@ const home = {
     const f = faqs(ctx);
     return `
 <!-- HERO: Higgsfield shop-lift clip (Lane 2 Codex, 2026-10-03), built from Max's real shop (IMG_7028).
+     Full-bleed, the text sits over the clip, and scrolling scrubs it (HERO-SLOT.md).
      Source deck: ../marketing/shop-lift-hero/. Spec: website/HERO-SLOT.md. Keep the h1 text and both buttons. -->
 <section class="hero" data-hero-slot="higgsfield" aria-labelledby="hero-title">
   <div class="hero-media" aria-hidden="true">
     <img class="hero-poster" src="${ctx.asset('hero/shop-lift-poster.jpg')}" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
-    <video class="hero-video" data-hero-video data-src="${ctx.asset('hero/shop-lift-hero.mp4')}" poster="${ctx.asset('hero/shop-lift-poster.jpg')}" muted loop playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
-    <div class="hero-scrim"></div>
-    <span class="hero-film-label">The shop in motion <span>AI visualization</span></span>
+    <canvas class="hero-canvas" data-hero-canvas></canvas>
+    <video class="hero-video" data-hero-video data-src="${ctx.asset('hero/shop-lift-hero-scrub.mp4')}" poster="${ctx.asset('hero/shop-lift-poster.jpg')}" muted playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
   </div>
-  <div class="wrap hero-inner">
+  <div class="hero-inner">
+    <div class="wrap">
     <div class="hero-copy">
       <p class="kicker kicker-light">Your space. Your tools. Your projects.</p>
       <h1 id="hero-title">DIY Garage &amp; Lift Rental in <span class="blue-light">Belgrade, MT</span></h1>
@@ -62,7 +63,8 @@ const home = {
         <a class="btn btn-yellow btn-lg btn-brush" href="${ctx.reserve()}"><span>Reserve a Bay</span></a>
         <a class="btn btn-ghost-light" href="${ctx.tel}">${ctx.icon('phone')}<span>Call Max</span></a><a class="hero-text-link" href="${ctx.sms}">${ctx.icon('chat')}Text Max</a>
       </div>
-      <p class="hero-hours">${ctx.icon('clock')} ${SITE.hoursNote}</p><button class="video-toggle" type="button" data-video-toggle aria-pressed="false" hidden>Pause shop video</button>
+      <p class="hero-hours">${ctx.icon('clock')} ${SITE.hoursNote}</p>
+    </div>
     </div>
   </div>
 </section>
