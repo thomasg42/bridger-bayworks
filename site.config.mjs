@@ -9,8 +9,8 @@ export const SITE = {
 
   // PREVIEW address until Max picks a domain. At launch: set url to the real domain,
   // set customDomain (writes docs/CNAME), set launched: true, rebuild.
-  url: 'https://thomasg42.github.io/bridger-bayworks',
-  customDomain: '',
+  url: 'https://bridgerbayworks.com',
+  customDomain: 'bridgerbayworks.com',
   // false = every page is noindex and robots.txt disallows crawling, so the preview
   // can never compete with the real domain in Google.
   launched: false,
