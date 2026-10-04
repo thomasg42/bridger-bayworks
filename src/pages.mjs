@@ -382,6 +382,7 @@ ${pageHero(ctx, {
       <p class="kicker">Standard rates</p>
       <h2>What it <span class="blue">costs</span></h2>
       ${rateTable(ctx)}
+      <div class="rates-table-cta"><a class="btn btn-yellow" href="${ctx.reserve({ service: 'other' })}"><span>Get a Quote</span>${ctx.icon('arrow')}</a></div>
     </div>
     <div class="stack">
       ${SITE.showPrices ? `<div class="note-card reveal"><span class="card-ico">${ctx.icon('clock')}</span><div><h3>Regular-use rate</h3><p>Using the shop more than ${r.regularHours} hours a month, month after month? Your lift and shop rate drops to <strong>$${r.liftRegular} an hour</strong>.</p><a class="text-link" href="${ctx.reserve({ service: 'regular' })}">Ask about the regular rate${ctx.icon('arrow')}</a></div></div>` : ''}

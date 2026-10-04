@@ -162,15 +162,8 @@ export function crumbs(ctx, name) {
   return `<nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="${ctx.link('')}">Home</a></li><li aria-current="page">${name}</li></ol></nav>`;
 }
 
-// Rates uses one workbench image, a simple title, then the requested actions.
+// Rates uses one workbench image and a simple title.
 function ratesIntro(ctx, { h1, lead }) {
-  const actions = [
-    ['Ask for diagnosis', ctx.link('diagnostics')],
-    ['Ask about rental', ctx.link('lift-rental')],
-    ['Ask about tools', ctx.link('tool-rental')],
-    ['Reserve a bay', ctx.tel],
-    ['Get a quote', ctx.reserve({service: 'other'})],
-  ];
   return `<section class="page-hero page-hero-photo page-hero-rates">
     <div class="wrap page-hero-inner">
       <div class="page-hero-copy">
@@ -180,13 +173,9 @@ function ratesIntro(ctx, { h1, lead }) {
       </div>
       <div class="rates-image-column">
         <figure class="page-hero-photo-frame rates-workbench">
-          <img src="${ctx.asset('photos/rates-workbench.jpg')}" alt="AI-styled long wooden workbench with blue tool cabinets and a red vise, based on the shop photos" width="1536" height="1024" fetchpriority="high">
+          <img src="${ctx.asset('photos/rates-workbench.jpg')}" alt="Long wooden workbench with blue tool cabinets and a red vise" width="1536" height="1024" fetchpriority="high">
           <span class="bench-title">Shop Rates</span>
-          <figcaption>AI-styled workbench · Based on our shop</figcaption>
         </figure>
-        <nav class="rates-image-actions" aria-label="Ask about shop services">
-          ${actions.map(([text,href],i)=>`<a class="btn ${i === 4 ? 'btn-yellow rates-quote' : 'btn-ghost-light'}" href="${href}"><span>${text}</span>${ctx.icon('arrow')}</a>`).join('')}
-        </nav>
       </div>
     </div>
   </section>`;
@@ -195,7 +184,7 @@ function ratesIntro(ctx, { h1, lead }) {
 // Page header band for every inner page (the home hero is reserved for Higgsfield).
 export function pageHero(ctx, { kicker, h1, lead, cta, ctaParams, secondary = true }) {
   if (ctx.slug === 'rates') return ratesIntro(ctx, { h1, lead });
-  const photos = { 'lift-rental': ['bmw-lift-angle', 'Black BMW on the blue lift at Bridger Bayworks', 'Inside Bridger Bayworks'], 'tool-rental': ['engine-hoist', 'Blue engine hoist beside the BMW with its hood open', 'Equipment inside Bridger Bayworks'], diagnostics: ['transmission-detail', 'Close-up of the removed transmission at Bridger Bayworks', 'A closer look at the project'], about: ['bridger-mountains', 'The snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'], 'how-it-works': ['bmw-workshop', 'Angled view of the BMW and blue lift inside Bridger Bayworks', 'Bring your project'], rates: ['rates-workbench', 'AI-styled view of the long wooden workbench, blue tool cabinets and red vise, based on the supplied shop photos', 'AI-styled workbench · Based on our shop'], 'diy-garage-bozeman': ['bridger-mountains', 'Snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'] };
+  const photos = { 'lift-rental': ['bmw-lift-angle', 'Black BMW on the blue lift at Bridger Bayworks', 'Inside Bridger Bayworks'], 'tool-rental': ['engine-hoist', 'Blue engine hoist beside the BMW with its hood open', 'Equipment inside Bridger Bayworks'], diagnostics: ['transmission-detail', 'Close-up of the removed transmission at Bridger Bayworks', 'A closer look at the project'], about: ['bridger-mountains', 'The snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'], 'how-it-works': ['bmw-workshop', 'Angled view of the BMW and blue lift inside Bridger Bayworks', 'Bring your project'], 'diy-garage-bozeman': ['bridger-mountains', 'Snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'] };
   const photo = photos[ctx.slug];
   return `<section class="page-hero${photo ? ' page-hero-photo' : ''}">
   <div class="wrap page-hero-inner">
