@@ -680,8 +680,9 @@ const reserve = {
           <textarea id="f-details" name="details" required maxlength="2000" rows="5" placeholder="Brakes and rotors on the front, first time doing it myself."></textarea>
         </div>
         <div class="field full">
-          <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>${SITE.leadEndpoint ? 'Send to us' : 'Prepare text or email'}</span></button>
-          <p class="fine">${SITE.leadEndpoint ? 'We use this to get back to you about your request.' : 'Next, send your request through your text or email app. Your bay is confirmed when we reply.'}</p>
+          <label class="check consent"><input type="checkbox" name="notify" value="yes"><span>Yes, you can send me text messages and email notifications.</span></label>
+          <p class="fine">You can opt out of texts and emails anytime.</p>
+          <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>Submit Form</span></button>
         </div>
       </form>
       <noscript><p class="panel panel-warn">This form needs JavaScript. Call or text us at <a href="${ctx.tel}">${SITE.phone.display}</a>.</p></noscript>
