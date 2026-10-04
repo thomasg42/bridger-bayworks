@@ -710,6 +710,7 @@ a.side-link:hover b { color: var(--royal); }
 
 .rates-table-cta { margin-top: 20px; }
 
-/* Reserve form consent: checkbox pinned to the left, text beside it. */
-.field .check.consent { display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; gap: 10px; text-align: left; font-weight: 500; cursor: pointer; }
-.field .check.consent input { flex: 0 0 22px; width: 22px; height: 22px; margin: 2px 0 0; padding: 0; accent-color: var(--royal); }
+/* Reserve form consent: same pill as the Add-ons checkboxes (box left, text beside it, vertically centered). */
+.field .check.consent { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid #CDD3E3; border-radius: 10px; background: var(--paper); cursor: pointer; font-weight: 500; text-align: left; }
+.field .check.consent input { flex: 0 0 20px; width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; accent-color: var(--royal); }
+.field .check.consent span { flex: 1; line-height: 1.35; }
