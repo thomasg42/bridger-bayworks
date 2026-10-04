@@ -21,7 +21,7 @@
   --shadow: 0 1px 2px rgba(20, 28, 51, .06), 0 8px 24px rgba(20, 28, 51, .08);
   --display: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', sans-serif;
   --body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --header-h: 68px;
+  --header-h: 100px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -684,3 +684,30 @@ a.side-link:hover b { color: var(--royal); }
 .mountain-window span { display: block; font-size: .8rem; color: #e7eef5; }
 .mountain-window a { display: inline-flex; gap: 8px; color: var(--yellow); margin-top: 12px; font-weight: 600; }
 @media (max-width:760px) { .mountain-window { min-height: 230px; background-position: 60% 20%; } }
+
+/* Exact supplied logo and real shop photography, 2026-10-04. */
+.brand-logo { width: 88px; height: 88px; object-fit: contain; flex: none; border-radius: 50%; }
+.brand-footer .brand-logo { width: 168px; height: 168px; }
+.community-photo { height: 580px; }
+.community-photo img { object-position: center 54%; }
+.process-photo { object-position: center 45%; }
+@media (max-width: 760px) {
+  :root { --header-h: 88px; }
+  .brand-logo { width: 76px; height: 76px; }
+  .community-photo { height: 470px; }
+}
+
+/* Rates-only image/title and actions; home Higgsfield hero is unchanged. */
+.rates-image-column { min-width: 0; }
+.page-hero-rates .rates-workbench { height: auto; aspect-ratio: 3 / 2; }
+.rates-workbench > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.bench-title { position: absolute; top: 16%; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: .25em .65em; border: 2px solid #aeb7bf; background: #142237; color: #fff; box-shadow: 0 3px 8px #0004; font: 800 clamp(1.45rem,3.1vw,2.8rem)/1.2 var(--display); text-transform: uppercase; letter-spacing: .08em; }
+.rates-image-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.rates-image-actions .btn { font-size: 1rem; padding: .8em .7em; }
+.rates-quote { grid-column: 1 / -1; }
+@media (max-width: 760px) {
+ .page-hero-rates .page-hero-copy { order: 0; }
+ .rates-image-column { order: 1; }
+ .bench-title { font-size: clamp(1.4rem,6vw,2rem); }
+ .rates-image-actions .btn { font-size: .95rem; }
+}

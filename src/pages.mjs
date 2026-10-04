@@ -104,7 +104,7 @@ ${liftStory(ctx)}
       <p class="kicker">A clean, well-equipped space to work on your ride</p>
       <h2 id="why-title">Why work <span class="blue">here</span></h2>
       <p class="section-lead">Get the car in the air, grab the right tool, and get it done.</p>
-      <figure class="shop-detail"><img src="${ctx.asset('photos/shop-door.jpg')}" alt="Open bay door at Bridger Bayworks" width="750" height="1000" loading="lazy"><figcaption>201 S Weaver St, Building A</figcaption></figure>
+      <figure class="shop-detail"><img src="${ctx.asset('photos/bmw-workshop.jpg')}" alt="BMW and blue two-post lift inside Bridger Bayworks" width="1536" height="1024" loading="lazy"><figcaption>201 S Weaver St, Building A</figcaption></figure>
       <a class="btn btn-royal" href="${ctx.reserve()}"><span>Reserve a bay</span>${ctx.icon('arrow')}</a>
     </div>
     ${whyList(ctx)}
@@ -256,7 +256,7 @@ ${pageHero(ctx, {
       <p class="kicker">Quality tools on site</p>
       <h2>What’s in the <span class="blue">shop</span></h2>
     </div>
-    <figure class="equipment-banner reveal"><img src="${ctx.asset('photos/shop-lift.jpg')}" alt="The lift and work area inside Bridger Bayworks" width="1050" height="1400" loading="lazy"><figcaption>Inside Bridger Bayworks. Ask us about the specific tool your job needs.</figcaption></figure>
+    <figure class="equipment-banner reveal"><img src="${ctx.asset('photos/transmission-jack.jpg')}" alt="Transmission on a red transmission jack between the blue lift posts at Bridger Bayworks" width="1536" height="1024" loading="lazy"><figcaption>Inside Bridger Bayworks. Ask us about the specific tool your job needs.</figcaption></figure>
     <div class="cards cards-3">
       <div class="card card-static reveal" style="--i:0"><span class="card-ico">${ctx.icon('toolbox')}</span><h3>Toolbox access</h3><p>Quality hand tools on site, so the job doesn’t stall on a missing socket.</p><span class="card-foot"><span class="chip">${ctx.price('tools', '/hr')}</span></span></div>
       <div class="card card-static reveal" style="--i:1"><span class="card-ico">${ctx.icon('impact')}</span><h3>1/2" and 3/8" impact guns</h3><p>For lug nuts, suspension bolts, and anything rusted tight.</p><span class="card-foot"><span class="chip">${ctx.price('impact', '/hr')}</span></span></div>

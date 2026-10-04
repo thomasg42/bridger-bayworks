@@ -51,7 +51,7 @@ export const SITE = {
   },
 
   // Sitemap lastmod + footer year.
-  updated: '2026-10-03',
+  updated: '2026-10-04',
   // Bump on every deploy so phones don't keep a stale stylesheet/script.
-  assetVersion: '20261004-wording-1',
+  assetVersion: '20261004-rates-links-1',
 };

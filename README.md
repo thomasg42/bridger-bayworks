@@ -6,6 +6,10 @@ Multi-page SEO site for a rent-a-bay DIY garage at 201 S Weaver St, Building A, 
 - **Repo:** `thomasg42/bridger-bayworks`, Pages from `main` → `/docs`
 - **Deploy:** `bash deploy-preview.sh` from Thomas's Terminal (builds, tests, pushes, enables Pages)
 
+## Current photo and brand update (2026-10-04, Lane 2 Codex)
+
+Local build only: supplied BMW, engine hoist, transmission and working-under-car photos replace prior shop/illustrative images. Supplied navy/white circular logo replaces our placeholder in header/footer, icons and social preview. Straight-on raised BMW excluded. Lane 1 wording and scrolling hero preserved. 23 tests pass; nine routes checked at phone/desktop sizes. Review: `review/00-CURRENT-photo-brand-update.md`. Not published by this task.
+
 ## Current hero (2026-10-03, Lane 1 Claude Code)
 
 At Thomas's request: the home hero text now sits over the full-bleed shop clip on desktop and phones, the "shop in motion / AI visualization" label is gone, and scrolling scrubs the clip (GMM scrubber port, keyframe-dense re-encode, no autoplay, so the pause button is gone). Nothing else on the site changed. Details and tuning: `HERO-SLOT.md`. Split-layout version kept at `review/2026-10-03-before-hero-overlay/`.
@@ -26,7 +30,7 @@ src/components.mjs  lift story (signature move), cards, rates strip, plan builde
 src/pages.mjs       all 10 pages
 src/assets/         site.css, site.js (behaviour), bb-core.js (pure logic), images
 tests/site.test.mjs node --test tests/site.test.mjs
-tools/make-images.py renders og-image.png + apple-touch-icon.png + favicon.svg
+tools/make-images.py resizes supplied logo into og-image.png + apple-touch-icon.png + favicon.png
 docs/               GENERATED. What GitHub Pages serves. Never edit by hand (a test catches it).
 HERO-SLOT.md        hero status, behaviour, and the v2 spec/prompt
 ```
@@ -52,7 +56,7 @@ Edit, then `node build.mjs && node --test tests/site.test.mjs`.
 
 ## SEO pass (blueprint step 3)
 
-Unique title (60 chars max) and description (110 to 160) per page, canonical, Open Graph + Twitter card with a 1200x630 image, `AutomotiveBusiness` JSON-LD with NAP, area served, social profiles and per-hour `UnitPriceSpecification` offers, `Service` schema per service page, `BreadcrumbList` on inner pages, `FAQPage` on how-it-works, sitemap.xml, robots.txt, one h1 per page, semantic landmarks, skip link, internal linking between service pages, a dedicated Bozeman page. No opening hours in schema because exact hours are UNCONFIRMED.
+Unique title (60 chars max) and description (110 to 160) per page, canonical, Open Graph + Twitter card with a 1200x1200 supplied-logo image, `AutomotiveBusiness` JSON-LD with NAP, area served, social profiles and per-hour `UnitPriceSpecification` offers, `Service` schema per service page, `BreadcrumbList` on inner pages, `FAQPage` on how-it-works, sitemap.xml, robots.txt, one h1 per page, semantic landmarks, skip link, internal linking between service pages, a dedicated Bozeman page. No opening hours in schema because exact hours are UNCONFIRMED.
 
 ## Scroll mechanism (standing rule) and signature move
 

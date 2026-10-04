@@ -48,8 +48,8 @@ export function ridge(variant = 'light') {
   return `<div class="ridge ridge-${variant}" aria-hidden="true"></div>`;
 }
 
-// Stand-in brand mark drawn from the flyer's peaks. Swap for Max's master logo when he sends it.
-export const brandMark = `<svg class="brand-mark" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><path fill="#5B74BD" d="M0 40L17 15L23 23L32 3L41 17L48 10L64 40Z"/><path fill="#FBFAF7" d="M32 3L26.5 14L30 11.5L32 15L34.5 11L37.5 13Z M48 10L44.5 16.5L47 15L48.5 17.5L50.5 15.5Z M17 15L13.6 20L16 19L17.6 21L19.4 19.6Z"/></svg>`;
+// Supplied client artwork, reproduced intact rather than redrawn.
+export const brandMark = (ctx) => `<img class="brand-logo" src="${ctx.asset('brand/bridger-bayworks-logo.png')}" alt="Bridger Bayworks DIY Garage" width="1254" height="1254" decoding="async">`;
 
 // ---------- icon sprite (24x24 stroke icons) ----------
 
@@ -96,7 +96,7 @@ function head(ctx, page, schema) {
 <link rel="canonical" href="${url}">
 ${noindex ? '<meta name="robots" content="noindex, nofollow">\n' : ''}<meta name="theme-color" content="#1B2541">
 <meta name="format-detection" content="telephone=no">
-<link rel="icon" href="${ctx.asset('favicon.svg')}" type="image/svg+xml">
+<link rel="icon" href="${ctx.asset('favicon.png')}" type="image/png">
 <link rel="apple-touch-icon" href="${ctx.root}assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,7 +110,7 @@ ${noindex ? '<meta name="robots" content="noindex, nofollow">\n' : ''}<meta name
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${ogImage}">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image:height" content="1200">
 <meta property="og:image:alt" content="Bridger Bayworks DIY Garage in Belgrade, Montana">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
@@ -143,8 +143,8 @@ function header(ctx) {
 <header class="site-header" data-header>
   <div class="wrap header-inner">
     <a class="brand" href="${ctx.link('')}" aria-label="${SITE.name}, home">
-      ${brandMark}
-      <span class="brand-words"><span class="b1">Bridger</span><span class="b2">Bayworks</span><span class="b3">DIY Garage</span></span>
+      ${brandMark(ctx)}
+      
     </a>
     <nav class="nav" aria-label="Main">
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu"><span class="bars" aria-hidden="true"></span><span class="nav-toggle-label">Menu</span></button>
@@ -162,9 +162,40 @@ export function crumbs(ctx, name) {
   return `<nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="${ctx.link('')}">Home</a></li><li aria-current="page">${name}</li></ol></nav>`;
 }
 
+// Rates uses one workbench image, a simple title, then the requested actions.
+function ratesIntro(ctx, { h1, lead }) {
+  const actions = [
+    ['Ask for diagnosis', ctx.link('diagnostics')],
+    ['Ask about rental', ctx.link('lift-rental')],
+    ['Ask about tools', ctx.link('tool-rental')],
+    ['Reserve a bay', ctx.tel],
+    ['Get a quote', ctx.reserve({service: 'other'})],
+  ];
+  return `<section class="page-hero page-hero-photo page-hero-rates">
+    <div class="wrap page-hero-inner">
+      <div class="page-hero-copy">
+        <p class="kicker kicker-light">Shop rates</p>
+        <h1>${h1}</h1><p class="lead">${lead}</p>
+        <p class="hero-hours">${ctx.icon('clock')} ${ctx.SITE.hoursNote}</p>
+      </div>
+      <div class="rates-image-column">
+        <figure class="page-hero-photo-frame rates-workbench">
+          <img src="${ctx.asset('photos/rates-workbench.jpg')}" alt="AI-styled long wooden workbench with blue tool cabinets and a red vise, based on the shop photos" width="1536" height="1024" fetchpriority="high">
+          <span class="bench-title">Shop Rates</span>
+          <figcaption>AI-styled workbench · Based on our shop</figcaption>
+        </figure>
+        <nav class="rates-image-actions" aria-label="Ask about shop services">
+          ${actions.map(([text,href],i)=>`<a class="btn ${i === 4 ? 'btn-yellow rates-quote' : 'btn-ghost-light'}" href="${href}"><span>${text}</span>${ctx.icon('arrow')}</a>`).join('')}
+        </nav>
+      </div>
+    </div>
+  </section>`;
+}
+
 // Page header band for every inner page (the home hero is reserved for Higgsfield).
 export function pageHero(ctx, { kicker, h1, lead, cta, ctaParams, secondary = true }) {
-  const photos = { 'lift-rental': ['shop-lift', 'The blue lift inside Bridger Bayworks', 'Inside Bridger Bayworks'], 'tool-rental': ['tools', 'Illustration of sockets, impact guns and a workshop lift', 'Illustrative equipment'], diagnostics: ['diagnostics', 'Illustration of two people inspecting a brake rotor on a lift', 'Illustrative diagnostic scene'], about: ['bridger-mountains', 'The snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'], 'how-it-works': ['shop-door', 'The open entrance to Bridger Bayworks', 'Bring your project'], rates: ['shop-lift', 'The lift at Bridger Bayworks', 'Your time. Your project.'], 'diy-garage-bozeman': ['bridger-mountains', 'Snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'] };
+  if (ctx.slug === 'rates') return ratesIntro(ctx, { h1, lead });
+  const photos = { 'lift-rental': ['bmw-lift-angle', 'Black BMW on the blue lift at Bridger Bayworks', 'Inside Bridger Bayworks'], 'tool-rental': ['engine-hoist', 'Blue engine hoist beside the BMW with its hood open', 'Equipment inside Bridger Bayworks'], diagnostics: ['transmission-detail', 'Close-up of the removed transmission at Bridger Bayworks', 'A closer look at the project'], about: ['bridger-mountains', 'The snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'], 'how-it-works': ['bmw-workshop', 'Angled view of the BMW and blue lift inside Bridger Bayworks', 'Bring your project'], rates: ['rates-workbench', 'AI-styled view of the long wooden workbench, blue tool cabinets and red vise, based on the supplied shop photos', 'AI-styled workbench · Based on our shop'], 'diy-garage-bozeman': ['bridger-mountains', 'Snow-covered Bridger Mountains viewed from Bozeman', 'The Bridger Mountains, Montana'] };
   const photo = photos[ctx.slug];
   return `<section class="page-hero${photo ? ' page-hero-photo' : ''}">
   <div class="wrap page-hero-inner">
@@ -208,7 +239,7 @@ function footer(ctx) {
   <div class="footer-body">
     <div class="wrap footer-grid">
       <div class="footer-brand">
-        <a class="brand brand-footer" href="${ctx.link('')}" aria-label="${SITE.name}, home">${brandMark}<span class="brand-words"><span class="b1">Bridger</span><span class="b2">Bayworks</span><span class="b3">DIY Garage</span></span></a>
+        <a class="brand brand-footer" href="${ctx.link('')}" aria-label="${SITE.name}, home">${brandMark(ctx)}</a>
         <p class="script">Drive More. Do More.</p>
         <address>
           <a href="${SITE.mapsUrl}" target="_blank" rel="noopener">${ctx.icon('pin')}<span>${a.street}<br>${a.city}, ${a.region} ${a.zip}</span></a>

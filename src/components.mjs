@@ -45,7 +45,7 @@ export function liftStory(ctx, { heading = 'How it <span class="blue">works</spa
         <${headingTag} id="lift-title">${heading}</${headingTag}>
       </div>
       <div class="lift-grid">
-        <div class="lift-visual"><img class="process-photo" src="${ctx.asset('photos/shop-lift.jpg')}" alt="The professional blue lift at Bridger Bayworks" width="1050" height="1400" loading="lazy"><span class="photo-label">Your workspace in Belgrade</span><div class="lift-blueprint" aria-hidden="true">${liftSvg}</div><div class="lift-meter" aria-hidden="true"><span data-lift-meter></span></div></div>
+        <div class="lift-visual"><img class="process-photo" src="${ctx.asset('photos/working-under-car.jpg')}" alt="Working beneath the BMW beside a transmission jack at Bridger Bayworks" width="1024" height="1536" loading="lazy"><span class="photo-label">Your workspace in Belgrade</span><div class="lift-blueprint" aria-hidden="true">${liftSvg}</div><div class="lift-meter" aria-hidden="true"><span data-lift-meter></span></div></div>
         <div class="lift-copy">
           <ol class="lift-steps">${steps}</ol>
           <a class="btn btn-royal" href="${ctx.reserve()}"><span>${ctaText}</span>${ctx.icon('arrow')}</a>
@@ -65,7 +65,7 @@ export function serviceCards(ctx) {
   ];
   return `<div class="cards">${cards.map(([ic, t, d, chip, href, more], i) => `
     <a class="card service-card reveal" style="--i:${i}" href="${ctx.link(href)}">
-      <div class="card-photo"><img src="${ctx.asset('photos/' + ['shop-lift', 'tools', 'diagnostics', 'shop-door'][i] + '.jpg')}" alt="${['Blue two-post lift at Bridger Bayworks', 'Illustration of workshop tools and impact guns', 'Illustration of a brake inspection', 'Bridger Bayworks shop entrance'][i]}" width="768" height="512" loading="lazy"><span class="photo-label">${[ 'The actual shop', 'Illustrative equipment', 'Illustrative scene', 'The actual shop'][i]}</span><span class="card-photo-icon">${ctx.icon(ic)}</span></div>
+      <div class="card-photo"><img src="${ctx.asset('photos/' + ['bmw-lift-angle', 'engine-hoist', 'transmission-detail', 'bmw-workshop'][i] + '.jpg')}" alt="${['BMW on the blue two-post lift at Bridger Bayworks', 'Blue engine hoist beside the BMW', 'Close-up of a removed transmission', 'The BMW and lift inside Bridger Bayworks'][i]}" width="768" height="512" loading="lazy"><span class="photo-label">${['Lift & bay', 'Engine hoist', 'Transmission detail', 'Inside the shop'][i]}</span><span class="card-photo-icon">${ctx.icon(ic)}</span></div>
       <h3>${t}</h3>
       <p>${d}</p>
       <span class="card-foot"><span class="chip">${chip}</span><span class="card-more">${more}${ctx.icon('arrow')}</span></span>
@@ -77,10 +77,8 @@ export function diagnosticScene(ctx) {
   return `<section class="section diagnostic-section" aria-label="Tell us what your car is doing">
     <div class="wrap diagnostic-grid">
       <figure class="diagnostic-photo reveal">
-        <img src="${ctx.asset('photos/diagnostics.jpg')}" alt="Illustrative scene of two people pointing out a worn brake rotor, with oil draining into a catch pan" width="1536" height="1024" loading="lazy">
-        <figcaption>Illustrative diagnostic scene</figcaption>
-        <span class="inspection-marker marker-brake" aria-hidden="true"></span>
-        <span class="inspection-marker marker-oil" aria-hidden="true"></span>
+        <img src="${ctx.asset('photos/transmission-underbody.jpg')}" alt="Removed transmission on a jack beneath the BMW at Bridger Bayworks" width="1536" height="1024" loading="lazy">
+        <figcaption>A closer look beneath the car</figcaption>
       </figure>
       <div class="diagnostic-copy reveal">
         <p class="kicker kicker-light">A sound. A leak. A warning light.</p>
@@ -101,7 +99,7 @@ export function communityScene(ctx) {
   return `<section class="community-feature section" aria-label="A place for local mechanics and DIYers">
     <div class="wrap community-feature-grid">
       <div class="reveal"><p class="kicker kicker-light">Good people. Shared know-how.</p><h2>Local mechanics.<br>Weekend wrenchers.<br><span class="blue-light">Your kind of people.</span></h2><p class="section-lead">We support our local mechanics and the people who want to work on their own cars. Bring your project, share what you know, and learn something along the way.</p><a class="btn btn-yellow" href="${ctx.reserve()}"><span>Find your bay</span>${ctx.icon('arrow')}</a></div>
-      <figure class="community-photo reveal"><img src="${ctx.asset('photos/community.jpg')}" alt="Illustration of three car enthusiasts sharing knowledge around a pickup engine" width="1536" height="1024" loading="lazy"><figcaption>Illustrative community scene</figcaption></figure>
+      <figure class="community-photo reveal"><img src="${ctx.asset('photos/working-under-car.jpg')}" alt="A person working underneath the BMW at Bridger Bayworks" width="1024" height="1536" loading="lazy"><figcaption>Project time at Bridger Bayworks</figcaption></figure>
     </div>
   </section>`;
 }
