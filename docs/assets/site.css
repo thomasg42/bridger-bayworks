@@ -709,3 +709,7 @@ a.side-link:hover b { color: var(--royal); }
 }
 
 .rates-table-cta { margin-top: 20px; }
+
+/* Reserve form consent: checkbox pinned to the left, text beside it. */
+.field .check.consent { display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; gap: 10px; text-align: left; font-weight: 500; cursor: pointer; }
+.field .check.consent input { flex: 0 0 22px; width: 22px; height: 22px; margin: 2px 0 0; padding: 0; accent-color: var(--royal); }
