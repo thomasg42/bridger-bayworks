@@ -77,10 +77,10 @@
     var errs = {};
     if (!v.service) errs.service = 'Pick what you need.';
     if (!v.name || !String(v.name).trim()) errs.name = 'Add your name.';
-    if (!phoneOk(v.phone)) errs.phone = 'Add a phone number Max can call or text.';
+    if (!phoneOk(v.phone)) errs.phone = 'Add a phone number we can call or text.';
     if (!emailOk(v.email)) errs.email = 'That email does not look right.';
     if (!v.vehicle || !String(v.vehicle).trim()) errs.vehicle = 'Add the year, make, and model.';
-    if (!v.details || !String(v.details).trim()) errs.details = 'Tell Max what the job is.';
+    if (!v.details || !String(v.details).trim()) errs.details = 'Tell us what the job is.';
     return errs;
   }
 

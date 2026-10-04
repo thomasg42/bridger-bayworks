@@ -2,8 +2,8 @@
 // "How it works" raises a car on a two-post lift, one step at a time.
 
 export const STEPS = [
-  ['Tell Max your plan', 'Choose your job and hours. Send your request to Max.'],
-  ['Confirm your bay', 'Max confirms your time and price. Then bring your vehicle and parts.'],
+  ['Tell us your plan', 'Choose your job and hours. Send your request to us.'],
+  ['Confirm your bay', 'We confirm your time and price. Then bring your vehicle and parts.'],
   ['Use our equipment', 'Lifts, tools, and a clean workspace.'],
   ['Get it done', 'Work at your own pace with our crew nearby if you need help.'],
 ];
@@ -60,7 +60,7 @@ export function serviceCards(ctx) {
   const cards = [
     ['lift', 'Lift Rental', 'Work on your own car or truck in a professional space. Same lifts the pros use.', ctx.price('lift', '/hr'), 'lift-rental', 'See lift rental'],
     ['wrench', 'Tool Rental', 'Quality tools on site, plus 1/2" and 3/8" impact guns when the bolts fight back.', ctx.price('tools', '/hr'), 'tool-rental', 'See tool rental'],
-    ['engine', 'Diagnostics', 'Scan tools and equipment to find the problem, then fix it on the lift.', 'Ask Max', 'diagnostics', 'See diagnostics'],
+    ['engine', 'Diagnostics', 'Scan tools and equipment to find the problem, then fix it on the lift.', 'Ask us', 'diagnostics', 'See diagnostics'],
     ['gear', 'A Clean, Well-Equipped Shop', 'Lifts, workbenches, compressors and more. Spacious bays for any size project.', '7 days a week', 'how-it-works', 'See how it works'],
   ];
   return `<div class="cards">${cards.map(([ic, t, d, chip, href, more], i) => `
@@ -74,7 +74,7 @@ export function serviceCards(ctx) {
 }
 
 export function diagnosticScene(ctx) {
-  return `<section class="section diagnostic-section" aria-label="Tell Max what your car is doing">
+  return `<section class="section diagnostic-section" aria-label="Tell us what your car is doing">
     <div class="wrap diagnostic-grid">
       <figure class="diagnostic-photo reveal">
         <img src="${ctx.asset('photos/diagnostics.jpg')}" alt="Illustrative scene of two people pointing out a worn brake rotor, with oil draining into a catch pan" width="1536" height="1024" loading="lazy">
@@ -85,7 +85,7 @@ export function diagnosticScene(ctx) {
       <div class="diagnostic-copy reveal">
         <p class="kicker kicker-light">A sound. A leak. A warning light.</p>
         <h2>See what’s <span class="blue-light">going on.</span></h2>
-        <p>Tell Max what you’re noticing. Find out which bay, tools, and support fit your project.</p>
+        <p>Tell us what you’re noticing. Find out which bay, tools, and support fit your project.</p>
         <div class="symptom-list">
           <a href="${ctx.reserve({service:'diagnostics', symptom:'rattle'})}"><span class="symptom-icon rattle">${ctx.icon('engine')}</span><span><strong>Rattles &amp; noises</strong><small>When does it happen?</small></span>${ctx.icon('arrow')}</a>
           <a href="${ctx.reserve({service:'diagnostics', symptom:'leak'})}"><span class="symptom-icon oil-drop">${ctx.icon('drop')}</span><span><strong>Oil spots &amp; leaks</strong><small>What are you seeing underneath?</small></span>${ctx.icon('arrow')}</a>
@@ -122,7 +122,7 @@ export function whyList(ctx) {
 export function ratesStrip(ctx) {
   const { SITE } = ctx;
   if (!SITE.showPrices) {
-    return `<div class="rates-strip reveal"><p class="rates-ask">Simple hourly pricing. Ask Max for current rates.</p></div>`;
+    return `<div class="rates-strip reveal"><p class="rates-ask">Simple hourly pricing. Ask us for current rates.</p></div>`;
   }
   const r = SITE.rates;
   return `<ul class="rates-strip">
@@ -156,8 +156,8 @@ export function planBuilder(ctx) {
     <p class="plan-label">Estimated total</p>
     <p class="plan-amount"><output id="plan-total">$${hours * r.lift}</output></p>
     <p class="plan-break" id="plan-break">${hours} hrs lift and shop time</p>
-    <a class="btn btn-yellow btn-lg" id="plan-send" href="${ctx.reserve({ service: 'lift', hours })}"><span>Send this plan to Max</span></a>
-    <p class="fine">Estimate only. Max confirms your price when he books your bay.</p>
+    <a class="btn btn-yellow btn-lg" id="plan-send" href="${ctx.reserve({ service: 'lift', hours })}"><span>Send this plan to us</span></a>
+    <p class="fine">Estimate only. We confirm your price when we book your bay.</p>
   </div>
 </div>`;
 }

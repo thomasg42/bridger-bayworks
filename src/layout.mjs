@@ -26,7 +26,7 @@ export function makeCtx(SITE, slug, opts = {}) {
     shows: SITE.showPrices,
     money: (n) => (n === 0 ? 'Free' : `$${n}`),
     price: (key, unit = '') => {
-      if (!SITE.showPrices) return 'Ask Max';
+      if (!SITE.showPrices) return 'Ask us';
       const n = r[key];
       return n === 0 ? 'Free' : `$${n}${unit}`;
     },
@@ -173,7 +173,7 @@ export function pageHero(ctx, { kicker, h1, lead, cta, ctaParams, secondary = tr
       <h1>${h1}</h1><p class="lead">${lead}</p>
       <div class="btn-row">
         <a class="btn btn-yellow btn-lg" href="${ctx.reserve(ctaParams)}"><span>${cta}</span></a>
-        ${secondary ? `<a class="btn btn-ghost-light" href="${ctx.tel}">${ctx.icon('phone')}<span>Call Max</span></a><a class="hero-text-link" href="${ctx.sms}">${ctx.icon('chat')}Text Max</a>` : ''}
+        ${secondary ? `<a class="btn btn-ghost-light" href="${ctx.tel}">${ctx.icon('phone')}<span>Call us</span></a><a class="hero-text-link" href="${ctx.sms}">${ctx.icon('chat')}Text us</a>` : ''}
       </div>
       <p class="hero-hours">${ctx.icon('clock')} ${ctx.SITE.hoursNote}</p>
     </div>
@@ -182,8 +182,8 @@ export function pageHero(ctx, { kicker, h1, lead, cta, ctaParams, secondary = tr
 </section>`;
 }
 
-export function ctaBand(ctx, { title = 'Got a project? Talk to Max.', text, params } = {}) {
-  const t = text || 'Tell Max what you’re working on and when you want to come in. He’ll get back to you with a bay and a price.';
+export function ctaBand(ctx, { title = 'Got a project? Talk to us.', text, params } = {}) {
+  const t = text || 'Tell us what you’re working on and when you want to come in. We’ll get back to you with a bay and a price.';
   return `<section class="cta-band" aria-labelledby="cta-title">
   ${ridge('dark')}
   <div class="wrap cta-inner reveal">
@@ -193,7 +193,7 @@ export function ctaBand(ctx, { title = 'Got a project? Talk to Max.', text, para
     <div class="btn-row">
       <a class="btn btn-yellow btn-lg btn-brush" href="${ctx.reserve(params)}"><span>Reserve a Bay</span></a>
       <a class="btn btn-ghost-light btn-lg" href="${ctx.tel}">${ctx.icon('phone')}<span>Call ${ctx.SITE.phone.display}</span></a>
-      <a class="btn btn-ghost-light btn-lg" href="${ctx.sms}">${ctx.icon('chat')}<span>Text Max</span></a>
+      <a class="btn btn-ghost-light btn-lg" href="${ctx.sms}">${ctx.icon('chat')}<span>Text us</span></a>
     </div>
     <p class="tagline-dots">Build <i></i> Fix <i></i> Learn <i></i> Repeat</p>
   </div>
@@ -227,11 +227,11 @@ function footer(ctx) {
         </ul>
       </div>
       <div>
-        <h2 class="footer-h">Talk to Max</h2>
+        <h2 class="footer-h">Talk to us</h2>
         <ul>
           <li><a href="${ctx.reserve()}">Reserve a bay</a></li>
           <li><a href="${ctx.tel}">${ctx.icon('phone')}<span>${SITE.phone.display}</span></a></li>
-          <li><a href="${ctx.sms}">${ctx.icon('chat')}<span>Text Max</span></a></li>
+          <li><a href="${ctx.sms}">${ctx.icon('chat')}<span>Text us</span></a></li>
           <li><a href="mailto:${SITE.email}">${ctx.icon('mail')}<span>${SITE.email}</span></a></li>
         </ul>
       </div>
@@ -250,7 +250,7 @@ function footer(ctx) {
     </div>
   </div>
 </footer>
-<div class="mobile-bar" aria-label="Contact Max">
+<div class="mobile-bar" aria-label="Contact us">
   <a href="${ctx.tel}">${ctx.icon('phone')}<span>Call</span></a>
   <a href="${ctx.sms}">${ctx.icon('chat')}<span>Text</span></a>
   <a class="mb-primary" href="${ctx.reserve()}"><span>Reserve a Bay</span></a>
