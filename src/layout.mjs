@@ -49,7 +49,7 @@ export function ridge(variant = 'light') {
 }
 
 // Supplied client artwork, reproduced intact rather than redrawn.
-export const brandMark = (ctx) => `<img class="brand-logo" src="${ctx.asset('brand/bridger-bayworks-logo.png')}" alt="Bridger Bayworks DIY Garage" width="1254" height="1254" decoding="async">`;
+export const brandMark = (ctx) => `<img class="brand-logo" src="${ctx.asset('brand/bridger-bayworks-logo.png')}" alt="Bridger Bayworks DIY Garage" width="360" height="360" decoding="async">`;
 
 // ---------- icon sprite (24x24 stroke icons) ----------
 
@@ -110,7 +110,7 @@ ${noindex ? '<meta name="robots" content="noindex, nofollow">\n' : ''}<meta name
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${ogImage}">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Bridger Bayworks DIY Garage in Belgrade, Montana">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
@@ -318,6 +318,7 @@ export function businessSchema(ctx) {
     knowsAbout: ['DIY auto repair', 'Lift rental', 'Tool rental', 'Vehicle diagnostics'],
   };
   if (SITE.showPrices) {
+    o.priceRange = `$${Math.min(r.tools, r.impact, r.coolantDisposal)} to $${r.lift} per hour`;
     o.makesOffer = [
       offer('Lift and shop time', r.lift, true),
       offer('Tool access', r.tools, true),
