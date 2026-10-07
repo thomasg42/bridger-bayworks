@@ -408,8 +408,9 @@ a.card:hover .card-more .ico { transform: translateX(3px); }
 .towns { background: var(--paper); border-radius: 18px; padding: 28px; }
 .towns-h { font: 800 1.3rem/1 var(--display); text-transform: uppercase; color: var(--royal); }
 .towns ul { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 10px; }
-.towns li { padding: 8px 14px; background: var(--white); border-radius: 999px; border: 1px solid var(--ice-200); font-weight: 600; }
-.towns li a { text-decoration: none; }
+.towns li { display: inline-flex; align-items: center; flex: 0 0 auto; width: fit-content; padding: 6px 10px; background: var(--white); border-radius: 999px; border: 1px solid var(--ice-200); font-weight: 600; line-height: 1.2; }
+.towns li a { color: var(--navy-800); text-decoration: none; }
+.towns li a:hover { color: var(--royal-600); }
 .towns-foot { color: var(--ink-soft); margin: 0; }
 .social-card { display: grid; gap: 12px; padding: 28px; background: var(--paper); border-radius: 18px; }
 .social-card a { display: flex; gap: 12px; align-items: center; padding: 14px 16px; background: var(--white); border-radius: 12px; text-decoration: none; font-weight: 600; }
@@ -629,7 +630,8 @@ a.side-link:hover b { color: var(--royal); }
 .flow li:not(:last-child)::after { content: '→'; position: absolute; right: -23px; top: 32px; color: var(--royal); font-size: 32px; z-index: 2; }
 .flow li { position: relative; }
 .towns { background: linear-gradient(#182942bd,#182942e6),url('photos/bridger-mountains.jpg') center 20%/cover; color: #e8edf7; border: 0; }
-.towns .towns-h, .towns a, .towns .towns-foot { color: #fff; }
+.towns .towns-h, .towns .towns-foot { color: #fff; }
+.towns li, .towns li a { color: var(--navy-800); }
 .rates-strip .num { display: inline; color: var(--yellow); font-weight: 800; }
 .photo-credit { font-size: .7rem; }
 @media (max-width: 1080px) {

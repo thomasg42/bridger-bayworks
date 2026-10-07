@@ -90,6 +90,17 @@ test('home page carries the full LocalBusiness schema with the real NAP', () => 
   assert.ok(!('openingHoursSpecification' in biz), 'exact hours are UNCONFIRMED; do not invent them');
 });
 
+test('home page town chips keep names readable inside their white boxes', () => {
+  const d = pages.find((p) => p.rel === 'index.html').document;
+  const towns = d.querySelector('.towns');
+  assert.ok(towns, 'home page needs the local towns section');
+  assert.deepEqual([...towns.querySelectorAll('li')].map((li) => li.textContent.trim()),
+    ['Bozeman', 'Manhattan', 'Three Forks', 'Four Corners', 'Gallatin Gateway']);
+  const css = readFileSync(join(WEB, 'src/assets/site.css'), 'utf8');
+  assert.match(css, /\.towns li a \{ color: var\(--navy-800\);/);
+  assert.match(css, /\.towns li \{[^}]*padding: 6px 10px/);
+});
+
 test('every internal link and asset resolves to a built file', () => {
   const base = SITE.url.replace(/\/$/, '') + '/';
   for (const p of pages) {
