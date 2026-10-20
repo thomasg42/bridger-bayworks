@@ -252,7 +252,8 @@ test('the message Max receives has everything', () => {
 
 function bootReserve({ search = '', endpoint = '', fetchImpl } = {}) {
   let html = readFileSync(join(DOCS, 'reserve/index.html'), 'utf8');
-  if (endpoint) html = html.replace('data-endpoint=""', `data-endpoint="${endpoint}"`);
+  // Force the endpoint under test (empty = the text/email handoff path), whatever the build shipped.
+  html = html.replace(/ action="[^"]*"/, '').replace(/data-endpoint="[^"]*"/, `data-endpoint="${endpoint}"`);
   const { window, document } = parse(html);
   const form = document.getElementById('reserve-form');
   // linkedom gaps: form.elements and <select>.value.

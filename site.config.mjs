@@ -35,7 +35,7 @@ export const SITE = {
 
   // Where the reserve form POSTs. Empty = no backend yet: the form hands the visitor a
   // prefilled text/email to Max instead, so no request is ever silently dropped.
-  leadEndpoint: '',
+  leadEndpoint: 'https://tggai.app.n8n.cloud/webhook/bridger-bayworks-lead',
 
   // STATED by Max (text 2026-10-01). Publishing needs his OK. showPrices: false turns
   // every price on the site into "Ask us" without touching any page.
@@ -51,7 +51,7 @@ export const SITE = {
   },
 
   // Sitemap lastmod + footer year.
-  updated: '2026-10-04',
+  updated: '2026-10-19',
   // Bump on every deploy so phones don't keep a stale stylesheet/script.
-  assetVersion: '20261004-seo-2',
+  assetVersion: '20261019-lead-email',
 };
