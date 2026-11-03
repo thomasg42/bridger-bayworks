@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Publishes the Bridger Bayworks site to GitHub Pages:
-#   https://thomasg42.github.io/bridger-bayworks/
+# Publishes the Bridger Bayworks site to GitHub Pages, served at https://bridgerbayworks.com/
+# (the old thomasg42.github.io/bridger-bayworks/ address only redirects there).
 # Run from Thomas's own Terminal (Claude Code has no GitHub push credentials):
 #   bash ~/Documents/FGA-Brain/FGA-AIOS/clients/bridger-bayworks/website/deploy-preview.sh
 #
@@ -11,13 +11,14 @@ set -euo pipefail
 SRC="$HOME/Documents/FGA-Brain/FGA-AIOS/clients/bridger-bayworks/website"
 REPO="thomasg42/bridger-bayworks"
 WORK="$HOME/Documents/bridger-bayworks-site"   # deploy clone, kept OUTSIDE FGA-Brain
-URL="https://thomasg42.github.io/bridger-bayworks/"
+URL="https://bridgerbayworks.com/"
 
 cd "$SRC"
-echo "1/5 Building..."
+VERSION=$(grep -o "assetVersion: '[^']*'" site.config.mjs | cut -d"'" -f2)
+echo "1/5 Building $VERSION..."
 node build.mjs
 echo "2/5 Testing (stops here if anything fails)..."
-node --test tests/site.test.mjs > /tmp/bridger-tests.txt 2>&1 || { tail -40 /tmp/bridger-tests.txt; echo "Tests failed. Nothing was published."; exit 1; }
+node --test --test-reporter=tap tests/site.test.mjs > /tmp/bridger-tests.txt 2>&1 || { tail -40 /tmp/bridger-tests.txt; echo "Tests failed. Nothing was published."; exit 1; }
 grep -E "^# (pass|fail)" /tmp/bridger-tests.txt || true
 
 echo "3/5 GitHub repo..."
@@ -56,14 +57,27 @@ else
   echo "   Pages turned on. First build takes 1 to 3 minutes."
 fi
 
-code=000
+# A 200 alone proves nothing: wait until the page carries THIS build's version stamp.
+# The ?check= query skips the 10-minute Pages cache.
+# No pipe into grep -q here: with pipefail, grep quitting early makes curl fail and hides a match.
+served=""
 for _ in $(seq 1 30); do
-  code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)
-  [ "$code" = "200" ] && break
+  page=$(curl -s "${URL}?check=$(date +%s)" || true)
+  if [[ "$page" == *"$VERSION"* ]]; then served=yes; break; fi
   sleep 10
 done
-if [ "$code" = "200" ]; then
-  echo "LIVE (preview, hidden from Google): $URL"
+if [ -n "$served" ]; then
+  echo "LIVE: $URL is serving $VERSION (still hidden from Google until launch)."
+  echo "On your phone, open it in a private tab (old copies can sit in the cache for 10 minutes)."
 else
-  echo "Pushed, but Pages answered HTTP $code after 5 minutes. Check https://github.com/$REPO/settings/pages"
+  echo "Pushed, but $URL is not serving $VERSION after 5 minutes. Check https://github.com/$REPO/actions"
+fi
+
+# The reserve form reads Max's calendar through this n8n endpoint. If it's down, the form still
+# works: it falls back to "we'll call you to set a time".
+avail=$(curl -s "https://tggai.app.n8n.cloud/webhook/bridger-bayworks-availability?from=$(date -v+2d +%Y-%m-%d)&to=$(date -v+16d +%Y-%m-%d)" || true)
+if [[ "$avail" == *'"ok":true'* ]]; then
+  echo "Booking calendar: answering (Max's calendar is readable)."
+else
+  echo "Booking calendar did NOT answer: bookings fall back to call-backs until it does. Tell Claude."
 fi

@@ -104,131 +104,79 @@
     update();
   }
 
-  // ---------- home hero: scrolling scrubs the shop clip (port of the GMM hero scrubber) ----------
-  // Poster first. The clip downloads only when motion is welcome and Save-Data is off; the
-  // scroll is the play head, the video never plays on its own.
+  // ---------- home hero: the shop clip plays on a loop behind the text ----------
+  // Poster first. The 1 MB clip downloads only when motion is welcome and Save-Data is off, and
+  // it fades in only once it is really playing, so a refused autoplay (iPhone Low Power Mode)
+  // leaves the photo, never a play icon. Low Power Mode does allow play() inside a tap, so the
+  // first tap anywhere tries again. The corner button pauses it (moving content needs a stop).
   var hero = document.querySelector('[data-hero-slot]');
   var heroVideo = hero && hero.querySelector('[data-hero-video]');
-  var heroCanvas = hero && hero.querySelector('[data-hero-canvas]');
-  var heroCtx = heroCanvas && heroCanvas.getContext && heroCanvas.getContext('2d', { alpha: false });
   var saveData = typeof navigator !== 'undefined' && navigator.connection && navigator.connection.saveData;
-  if (heroVideo && heroCtx && motionOK && !saveData) bootHeroScrub();
+  if (heroVideo && typeof heroVideo.play === 'function' && motionOK && !saveData) bootHeroLoop();
 
-  function bootHeroScrub() {
-    var media = hero.querySelector('.hero-media');
-    var inner = hero.querySelector('.hero-inner');
+  function bootHeroLoop() {
+    var toggle = hero.querySelector('[data-video-toggle]');
     var rmq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    var targetProgress = 0, displayedProgress = 0, frame = 0, ready = false, primed = false;
+    var inView = true, userPaused = false;
 
-    var drawFrame = function () {
-      if (rmq.matches || heroVideo.readyState < 2 || !heroVideo.videoWidth) return;
-      var density = Math.min(window.devicePixelRatio || 1, 2);
-      var w = Math.max(1, Math.round(heroCanvas.clientWidth * density));
-      var h = Math.max(1, Math.round(heroCanvas.clientHeight * density));
-      if (heroCanvas.width !== w) heroCanvas.width = w;
-      if (heroCanvas.height !== h) heroCanvas.height = h;
-      var scale = Math.max(w / heroVideo.videoWidth, h / heroVideo.videoHeight);
-      var vw = heroVideo.videoWidth * scale, vh = heroVideo.videoHeight * scale;
-      // Same crop as the poster's object-position (43% 50%), so the swap is seamless.
-      heroCtx.drawImage(heroVideo, (w - vw) * 0.43, (h - vh) * 0.5, vw, vh);
-      heroCanvas.classList.add('is-ready');
+    var play = function () {
+      if (userPaused || !inView || rmq.matches) return;
+      var p = heroVideo.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {}); // refused: the poster stays up
+    };
+    var syncToggle = function () {
+      if (!toggle) return;
+      var paused = heroVideo.paused;
+      toggle.classList.toggle('is-paused', paused);
+      toggle.setAttribute('aria-label', paused ? 'Play the background video' : 'Pause the background video');
+    };
+    var retry = function () { if (heroVideo.paused) play(); };
+    var stopRetrying = function () {
+      document.removeEventListener('touchend', retry);
+      document.removeEventListener('click', retry);
     };
 
-    var seek = function () {
-      frame = 0;
-      var duration = heroVideo.duration;
-      if (!ready || rmq.matches || !isFinite(duration) || duration <= 0) return;
-      displayedProgress += (targetProgress - displayedProgress) * 0.22;
-      if (Math.abs(targetProgress - displayedProgress) < 0.0005) displayedProgress = targetProgress;
-      var safeEnd = Math.max(0, duration - 0.04);
-      var wantedTime = displayedProgress * safeEnd;
-      if (!heroVideo.seeking && Math.abs(heroVideo.currentTime - wantedTime) > 0.018) heroVideo.currentTime = wantedTime;
-      var caughtUp = displayedProgress === targetProgress && !heroVideo.seeking &&
-        Math.abs(heroVideo.currentTime - targetProgress * safeEnd) <= 0.024;
-      if (!caughtUp) frame = requestAnimationFrame(seek);
-    };
+    heroVideo.addEventListener('playing', function () {
+      heroVideo.classList.add('is-playing');
+      if (toggle) toggle.hidden = false;
+      syncToggle();
+      stopRetrying();
+    });
+    heroVideo.addEventListener('pause', syncToggle);
+    heroVideo.addEventListener('error', function () {
+      heroVideo.classList.remove('is-playing');
+      if (toggle) toggle.hidden = true;
+    });
+    if (toggle) {
+      toggle.addEventListener('click', function () {
+        if (heroVideo.paused) { userPaused = false; play(); } else { userPaused = true; heroVideo.pause(); }
+        syncToggle();
+      });
+    }
+    document.addEventListener('touchend', retry, { passive: true });
+    document.addEventListener('click', retry);
 
-    var readScroll = function () {
-      if (!ready) return;
-      var rect = hero.getBoundingClientRect();
-      var top = parseFloat(window.getComputedStyle(media).top) || 0; // the header height the clip pins under
-      var scrollable = hero.offsetHeight - media.offsetHeight;
-      targetProgress = scrollable > 0 ? Math.min(1, Math.max(0, (top - rect.top) / scrollable)) : 0;
-      if (!frame) frame = requestAnimationFrame(seek);
-    };
-
-    // The copy pins with the clip only when it fits one screen; a taller copy (small or
-    // sideways phones) scrolls up over the pinned clip instead of being cut off.
-    var fitCopy = function () {
-      inner.classList.toggle('is-pinned', inner.offsetHeight <= media.offsetHeight + 1);
-    };
-
-    // The clip can't load (error, Low Power Mode, dead network): drop the long scroll track,
-    // but only while the visitor is still at the top, so nothing they are reading jumps.
-    // Further down, the poster simply stays pinned for the rest of the track.
-    var giveUp = function () {
-      if (ready || !hero.classList.contains('is-scrub')) return;
-      var top = parseFloat(window.getComputedStyle(media).top) || 0;
-      if (hero.getBoundingClientRect().top >= top - 1) hero.classList.remove('is-scrub');
-    };
-
-    var markReady = function () {
-      if (primed) return;
-      primed = true;
-      var finished = false;
-      var finish = function () {
-        if (finished) return;
-        finished = true;
-        heroVideo.pause();
-        ready = true;
-        // A slow clip that arrives after giveUp gets its track back if the visitor is still at the top.
-        if (!hero.classList.contains('is-scrub') && hero.getBoundingClientRect().top >= (parseFloat(window.getComputedStyle(media).top) || 0) - 1) hero.classList.add('is-scrub');
-        fitCopy();
-        drawFrame();
-        readScroll();
-      };
-      var finishAfterFirstFrame = function () {
-        if (typeof heroVideo.requestVideoFrameCallback === 'function') heroVideo.requestVideoFrameCallback(finish);
-        else requestAnimationFrame(function () { requestAnimationFrame(finish); });
-        window.setTimeout(finish, 800); // in case the offscreen decoder never reports a frame
-      };
-      var playback = heroVideo.play();
-      if (playback && typeof playback.then === 'function') playback.then(finishAfterFirstFrame, finish);
-      else finishAfterFirstFrame();
-      window.setTimeout(finish, 1500); // the data is here; don't wait forever on a play() that never settles
-    };
-
-    heroVideo.addEventListener('loadeddata', markReady, { once: true });
-    heroVideo.addEventListener('seeked', drawFrame);
-    heroVideo.addEventListener('error', giveUp);
-    window.addEventListener('scroll', readScroll, { passive: true });
-    window.addEventListener('resize', function () {
-      fitCopy();
-      if (!ready) return;
-      drawFrame();
-      readScroll();
-    }, { passive: true });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCopy); // web fonts change the copy height
-
-    // The scroll track is there from the first paint (like the Kraken hero), so the page never
-    // grows under the visitor once the clip is ready.
-    hero.classList.add('is-scrub');
-    fitCopy();
+    // Off screen it stops decoding; back on screen it carries on (unless the visitor paused it).
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        inView = entries[entries.length - 1].isIntersecting;
+        if (inView) play();
+        else if (!heroVideo.paused) heroVideo.pause();
+      }).observe(hero);
+    }
     if (rmq.addEventListener) {
       rmq.addEventListener('change', function () {
-        if (rmq.matches) heroCanvas.classList.remove('is-ready'); // back to the still poster
-        else { drawFrame(); readScroll(); }
+        if (!rmq.matches) { play(); return; }
+        heroVideo.pause(); // back to the still poster
+        heroVideo.classList.remove('is-playing');
+        if (toggle) toggle.hidden = true;
       });
     }
 
-    heroVideo.muted = true;
+    heroVideo.muted = true; // iOS checks the property, not only the attribute
     heroVideo.preload = 'auto';
     heroVideo.setAttribute('src', heroVideo.getAttribute('data-src'));
-    // iOS only fetches media data once playback is requested; markReady pauses it on the first frame.
-    var request = heroVideo.play();
-    if (request && request.catch) request.catch(function () {}); // Low Power Mode etc.: seeking still works once data loads
-    window.setTimeout(function () { if (!primed) giveUp(); }, 6000); // never got a frame
-    if (heroVideo.readyState >= 2) markReady();
+    play();
   }
 
   // ---------- plan builder (rates page) ----------
@@ -271,11 +219,12 @@
     var sending = false;
     // Always go through namedItem: form.name / form.action are the FORM's own attributes.
     var f = function (n) { return form.elements.namedItem(n); };
+    var B = CFG.booking || null;
+    var jobs = CFG.jobs || [];
 
     // Prefill from a service page link or the plan builder.
     var pre = Core.parsePlan(window.location.search);
     if (pre.service && !f('service').value) f('service').value = pre.service;
-    if (pre.hours && !f('hours').value) f('hours').value = String(pre.hours);
     if (pre.tools) f('tools').checked = true;
     if (pre.impact) f('impact').checked = true;
     if (pre.coolant) f('coolant').checked = true;
@@ -287,17 +236,125 @@
       f('details').value = 'Plan: ' + Core.planLine(CFG.rates, pre) + ' (estimate $' + e.total + ').\n';
     }
 
-    // No booking in the past.
-    var d = new Date();
-    f('date').min = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    // ---------- time: book an open slot on Max's calendar, or we call to set one ----------
+    // Tomorrow's schedule is already set, so the first day on offer (and the earliest preferred
+    // day for a call-back) is the day after tomorrow on the shop's clock.
+    var days = B ? Core.bookingDays(Date.now(), B) : [];
+    var minDate = days[0] || '';
+    if (minDate) f('date').min = minDate;
+    var jobRow = document.getElementById('job-row');
+    var jobHint = document.getElementById('f-job-hint');
+    var jobHintDefault = jobHint ? jobHint.textContent : '';
+    var picker = document.getElementById('slot-picker');
+    var pickerNote = document.getElementById('slot-note');
+    var dayList = document.getElementById('slot-days');
+    var timeList = document.getElementById('slot-times');
+    var callback = document.getElementById('callback');
+    var callbackNote = document.getElementById('callback-note');
+    var callbackDefault = callbackNote ? callbackNote.textContent : '';
+    var busy = null, loadState = 'idle', anyOpen = false, chosenDay = '', chosenHour = null;
+
+    var needHours = function () { return Core.bookingHours({ service: f('service').value, job: f('job').value }, CFG); };
+
+    // One availability call per page view, and only once someone picks something bookable.
+    var loadBusy = function () {
+      if (loadState !== 'idle') return;
+      if (!B || !B.availabilityEndpoint || !days.length || typeof fetch !== 'function') { loadState = 'failed'; return; }
+      loadState = 'loading';
+      fetch(B.availabilityEndpoint + '?from=' + days[0] + '&to=' + Core.addDaysKey(days[days.length - 1], 1))
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (data) {
+          if (!data || data.ok !== true) throw new Error('bad availability');
+          busy = Core.normalizeBusy(data.busy, B.timeZone);
+          loadState = 'ready';
+          render();
+        })
+        .catch(function () { loadState = 'failed'; render(); });
+    };
+
+    var drawPicker = function (hours) {
+      dayList.innerHTML = '';
+      timeList.innerHTML = '';
+      if (loadState !== 'ready') { pickerNote.textContent = 'Checking our calendar…'; return; }
+      var open = {};
+      var firstOpen = '';
+      days.forEach(function (d) { open[d] = Core.openStarts(d, hours, busy, B); if (!firstOpen && open[d].length) firstOpen = d; });
+      anyOpen = !!firstOpen;
+      if (!anyOpen) return;
+      if (!open[chosenDay] || !open[chosenDay].length) { chosenDay = firstOpen; chosenHour = null; }
+      if (chosenHour !== null && open[chosenDay].indexOf(chosenHour) < 0) chosenHour = null;
+      dayList.innerHTML = days.map(function (d) {
+        var parts = Core.dayShort(d).split(' ');
+        var full = !open[d].length;
+        return '<label class="slot' + (full ? ' is-full' : '') + '"><input type="radio" name="slotDay" value="' + d + '"' +
+          (d === chosenDay ? ' checked' : '') + (full ? ' disabled' : '') + '><span><b>' + parts[0] + '</b>' + parts[1] + ' ' + parts[2] +
+          (full ? '<small>Full</small>' : '') + '</span></label>';
+      }).join('');
+      timeList.innerHTML = open[chosenDay].map(function (h) {
+        return '<label class="slot"><input type="radio" name="slotTime" value="' + h + '"' + (h === chosenHour ? ' checked' : '') +
+          '><span>' + Core.hourLabel(h) + '</span></label>';
+      }).join('');
+      pickerNote.textContent = chosenHour === null
+        ? 'Open times on ' + Core.dayShort(chosenDay) + '. We book ' + Core.hrs(hours) + ' for you.'
+        : 'Your time: ' + Core.slotLabel(chosenDay, chosenHour, hours) + '.';
+    };
+
+    var render = function () {
+      var isLift = f('service').value === 'lift';
+      if (jobRow) jobRow.hidden = !isLift;
+      var job = isLift ? Core.findJob(jobs, f('job').value) : null;
+      if (jobHint) jobHint.textContent = job ? Core.jobHint(job) : jobHintDefault;
+      var hours = needHours();
+      if (hours) loadBusy();
+      if (hours && loadState === 'ready') drawPicker(hours);
+      // Calendar down, or nothing open in the window: fall back to a call-back request.
+      var fallback = hours && (loadState === 'failed' || (loadState === 'ready' && !anyOpen));
+      var booking = !!hours && !fallback;
+      picker.hidden = !booking;
+      if (booking && loadState !== 'ready') drawPicker(hours);
+      callback.hidden = booking || !f('service').value;
+      callbackNote.textContent = !fallback ? callbackDefault
+        : loadState === 'failed' ? 'We couldn’t load our calendar just now. Pick a day and we’ll call you to set the time.'
+          : 'No open times in the next ' + days.length + ' days. Pick a day and we’ll call you to find one.';
+    };
+
+    picker.addEventListener('change', function (ev) {
+      var t = ev.target;
+      if (t.name === 'slotDay') { chosenDay = t.value; chosenHour = null; }
+      else if (t.name === 'slotTime') chosenHour = parseInt(t.value, 10);
+      else return;
+      render();
+      // Redrawing replaced the radios; keep keyboard focus on the one just picked.
+      var again = picker.querySelector('input[name="' + t.name + '"][value="' + t.value + '"]');
+      if (again && again.focus) again.focus();
+    });
+    f('service').addEventListener('change', render);
+    f('job').addEventListener('change', render);
+    render();
 
     var values = function () {
-      return {
-        service: f('service').value, name: f('name').value, phone: f('phone').value, email: f('email').value,
-        vehicle: f('vehicle').value, date: f('date').value, hours: f('hours').value,
+      var service = f('service').value;
+      var v = {
+        service: service, name: f('name').value, phone: f('phone').value, email: f('email').value,
+        vehicle: f('vehicle').value, job: service === 'lift' ? f('job').value : '',
         tools: f('tools').checked, impact: f('impact').checked, coolant: f('coolant').checked,
         details: f('details').value,
+        // Sent as emailOk, never notify: the n8n email once printed "Texts/emails OK" from
+        // body.notify, and this box only covers email.
+        emailOk: f('notify').checked,
       };
+      var hours = needHours();
+      if (hours && !picker.hidden && chosenDay && chosenHour !== null) {
+        var range = Core.slotRange(chosenDay, chosenHour, hours, B.timeZone);
+        v.slotDay = chosenDay; v.slotHour = chosenHour; v.slotHours = hours;
+        v.slotStart = range.start; v.slotEnd = range.end;
+        v.slotLabel = Core.slotLabel(chosenDay, chosenHour, hours);
+      } else if (!callback.hidden) {
+        v.date = f('date').value;
+      }
+      var job = Core.findJob(jobs, v.job);
+      v.jobLabel = service === 'diagnostics' ? 'Diagnosis' : job ? job.label : '';
+      return v;
     };
 
     var clearErrors = function () {
@@ -321,11 +378,29 @@
         input.setAttribute('aria-describedby', msg.id);
         if (!first) first = input;
       });
-      if (first) first.focus();
+      if (first && first.focus) first.focus();
     };
     var hideAll = function () { [thanks, handoff, oops].forEach(function (p) { if (p) p.hidden = true; }); };
     var show = function (panel) { hideAll(); panel.hidden = false; panel.focus({ preventScroll: true }); panel.scrollIntoView({ block: 'center' }); };
     var reset = function () { sending = false; btn.disabled = false; btn.innerHTML = btnLabel; };
+    var showThanks = function (v) {
+      if (v.slotLabel) {
+        document.getElementById('thanks-h').textContent = 'You’re booked.';
+        document.getElementById('thanks-slot').textContent = v.slotLabel;
+        document.getElementById('thanks-booked').hidden = false;
+        document.getElementById('thanks-call').hidden = true;
+      }
+      form.hidden = true;
+      show(thanks);
+    };
+    // Someone else took that time between loading the calendar and sending: reload and ask again.
+    var slotTaken = function () {
+      reset();
+      loadState = 'idle'; busy = null; chosenHour = null;
+      render();
+      clearErrors();
+      showErrors({ slot: 'That time was just booked. Pick another time.' });
+    };
 
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
@@ -333,17 +408,17 @@
       clearErrors();
       hideAll();
       var v = values();
-      var errs = Core.validate(v);
+      var errs = Core.validate(v, { minDate: minDate, needSlot: !!needHours() && !picker.hidden && loadState === 'ready' });
       if (Object.keys(errs).length) { showErrors(errs); return; }
-      if (f('company').value) { show(thanks); form.hidden = true; return; } // honeypot: bots get a quiet "sent"
+      if (f('bb_check').value) { show(thanks); form.hidden = true; return; } // honeypot: bots get a quiet "sent"
 
-      var text = Core.message(v);
+      var text = Core.message(v, { jobs: jobs });
       var smsLink = Core.smsHref(CFG.phoneE164, text);
       var errSms = document.getElementById('error-sms');
       if (errSms) errSms.setAttribute('href', smsLink);
 
       if (!endpoint) {
-        // No backend wired yet: hand the visitor a ready-to-send text/email to Max.
+        // No backend wired: hand the visitor a ready-to-send text/email to Max.
         document.getElementById('handoff-sms').setAttribute('href', smsLink);
         document.getElementById('handoff-mail').setAttribute('href', Core.mailtoHref(CFG.email, 'Bay request: ' + v.name.trim(), text));
         show(handoff);
@@ -356,10 +431,10 @@
       var payload = Object.assign({}, v, { message: text, page: window.location.href, submittedAt: new Date().toISOString() });
       fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
         .then(function (r) {
+          if (r.status === 409) { slotTaken(); return; }
           // A 4xx/5xx still resolves; only r.ok means the request reached Max.
           if (!r.ok) throw new Error('HTTP ' + r.status);
-          form.hidden = true;
-          show(thanks);
+          showThanks(v);
         })
         .catch(function () {
           reset(); // every value the visitor typed stays in the form

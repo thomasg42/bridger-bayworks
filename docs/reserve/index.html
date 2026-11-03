@@ -9,13 +9,13 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1B2541">
 <meta name="format-detection" content="telephone=no">
-<link rel="icon" href="../assets/favicon.png?v=20261019-lead-email" type="image/png">
+<link rel="icon" href="../assets/favicon.png?v=20261102-booking" type="image/png">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yellowtail&text=DriveMo.%20&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=20261019-lead-email">
+<link rel="stylesheet" href="../assets/site.css?v=20261102-booking">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Bridger Bayworks DIY Garage">
 <meta property="og:title" content="Reserve a Bay or Get a Quote | Bridger Bayworks">
@@ -62,12 +62,14 @@
 <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13.5 6.5L19 12l-5.5 5.5"/></symbol>
 <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></symbol>
 <symbol id="i-scan" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="15" rx="2"/><rect x="8.5" y="5" width="7" height="5" rx=".8"/><path d="M10 13.5h4M12 17.5v2.5a1.5 1.5 0 0 0 1.5 1.5H17"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M8.5 5.5v13l10-6.5z"/></symbol>
 </defs></svg>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header" data-header>
   <div class="wrap header-inner">
     <a class="brand" href="../" aria-label="Bridger Bayworks DIY Garage, home">
-      <img class="brand-logo" src="../assets/brand/bridger-bayworks-logo.png?v=20261019-lead-email" alt="Bridger Bayworks DIY Garage" width="360" height="360" decoding="async">
+      <img class="brand-logo" src="../assets/brand/bridger-bayworks-logo.png?v=20261102-booking" alt="Bridger Bayworks DIY Garage" width="360" height="360" decoding="async">
       
     </a>
     <nav class="nav" aria-label="Main">
@@ -94,16 +96,16 @@
   <div class="wrap reserve-grid">
     <div class="form-card">
       <form id="reserve-form" class="reserve-form" method="post" action="https://tggai.app.n8n.cloud/webhook/bridger-bayworks-lead" novalidate data-endpoint="https://tggai.app.n8n.cloud/webhook/bridger-bayworks-lead">
-        <div class="hp" aria-hidden="true"><label for="f-company">Company</label><input id="f-company" type="text" name="company" tabindex="-1" autocomplete="off"></div>
+        <!-- Honeypot. Its name is one no browser AutoFill recognises: a field called "company" gets
+             filled from the visitor's contact card, and a real request would vanish as spam. -->
+        <div class="hp" aria-hidden="true"><label for="f-bbcheck">Leave this empty</label><input id="f-bbcheck" type="text" name="bb_check" tabindex="-1" autocomplete="off"></div>
         <div class="field full">
           <label for="f-service">What do you need? <b aria-hidden="true">*</b></label>
           <select id="f-service" name="service" required>
             <option value="">Choose one</option>
             <option value="lift">Lift time</option>
-            <option value="tools">Tool rental</option>
-            <option value="diagnostics">Diagnostics / scan tools</option>
-            <option value="regular">Regular-use rate</option>
-            <option value="other">A quote for something else</option>
+            <option value="diagnostics">Diagnostics and scan tools</option>
+            <option value="quote">Just get a quote</option>
           </select>
         </div>
         <div class="field">
@@ -121,19 +123,31 @@
         </div>
         <div class="field">
           <label for="f-vehicle">Vehicle <b aria-hidden="true">*</b></label>
-          <input id="f-vehicle" type="text" name="vehicle" required maxlength="80" placeholder="Year, make, model">
+          <!-- Free text, not something to AutoFill. Safari may still show its own keyboard bar. -->
+          <input id="f-vehicle" type="text" name="vehicle" required maxlength="80" placeholder="Year, make, model" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
         </div>
-        <div class="field">
+        <!-- Time (Thomas, 2026-11-02): a job with a known length, or a diagnosis, books straight
+             onto Max's calendar from the open slots (site.js + bb-core.js). Anything else: we call. -->
+        <div class="field full" id="job-row">
+          <label for="f-job">What’s the job? <span class="opt">(if you know)</span></label>
+          <select id="f-job" name="job" aria-describedby="f-job-hint">
+            <option value="">Not sure yet</option>
+            <option value="oil-change">Oil change (1 hr)</option>
+            <option value="wheel-bearings">Wheel bearings (6 hrs)</option>
+            <option value="other">Something else</option>
+          </select>
+          <small id="f-job-hint">Pick your job and book a time. Anything else, we’ll call you to set one.</small>
+        </div>
+        <fieldset class="field full slot-picker" id="slot-picker" name="slot" hidden>
+          <legend>Pick a day and time <b aria-hidden="true">*</b></legend>
+          <p class="slot-note" id="slot-note" aria-live="polite">Checking our calendar…</p>
+          <div class="slot-days" id="slot-days"></div>
+          <div class="slot-times" id="slot-times"></div>
+        </fieldset>
+        <div class="field full" id="callback" hidden>
+          <p class="callback-note" id="callback-note">We’ll call you to set a time.</p>
           <label for="f-date">Preferred day <span class="opt">(optional)</span></label>
           <input id="f-date" type="date" name="date">
-        </div>
-        <div class="field">
-          <label for="f-hours">How long? <span class="opt">(optional)</span></label>
-          <select id="f-hours" name="hours">
-            <option value="">Not sure</option>
-            <option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option><option value="5">5 hours</option><option value="6">6 hours</option><option value="7">7 hours</option><option value="8">8 hours</option><option value="9">9 hours</option><option value="10">10 hours</option><option value="11">11 hours</option><option value="12">12 hours</option>
-            <option value="full-day">Full day</option>
-          </select>
         </div>
         <fieldset class="field full checks">
           <legend>Add-ons <span class="opt">(optional)</span></legend>
@@ -142,20 +156,22 @@
           <label class="check"><input type="checkbox" name="coolant" value="yes"><span>Coolant disposal</span></label>
         </fieldset>
         <div class="field full">
-          <label for="f-details">What’s the job? <b aria-hidden="true">*</b></label>
-          <textarea id="f-details" name="details" required maxlength="2000" rows="5" placeholder="Brakes and rotors on the front, first time doing it myself."></textarea>
+          <label for="f-details">Describe what’s going on with your car <b aria-hidden="true">*</b></label>
+          <small id="f-details-hint">Why are you coming to the shop? If you already know the job, tell us. If not, tell us what you notice.</small>
+          <textarea id="f-details" name="details" required maxlength="2000" rows="5" autocomplete="off" aria-describedby="f-details-hint" placeholder="When I hit my brakes they squeak, so I’m pretty sure it’s a brake job."></textarea>
         </div>
         <div class="field full">
-          <label class="check consent"><input type="checkbox" name="notify" value="yes"><span>Yes, you can send me text messages and email notifications.</span></label>
-          <p class="fine">You can opt out of texts and emails anytime.</p>
+          <label class="check consent"><input type="checkbox" name="notify" value="yes"><span>Yes, you can send me email notifications.</span></label>
+          <p class="fine">You can opt out anytime.</p>
           <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>Submit Form</span></button>
         </div>
       </form>
       <noscript><p class="panel panel-warn">This form needs JavaScript. Call or text us at <a href="tel:+14062336598">406-233-6598</a>.</p></noscript>
 
       <div class="panel panel-ok" id="form-thanks" hidden tabindex="-1">
-        <h2>Sent. We have it.</h2>
-        <p>We’ll get back to you at the number you gave. Need us sooner? Call or text <a href="tel:+14062336598">406-233-6598</a>.</p>
+        <h2 id="thanks-h">Sent. We have it.</h2>
+        <p id="thanks-booked" hidden>You’re on our calendar: <b id="thanks-slot"></b>. Need to change it? Call or text <a href="tel:+14062336598">406-233-6598</a>.</p>
+        <p id="thanks-call">We’ll get back to you at the number you gave. Need us sooner? Call or text <a href="tel:+14062336598">406-233-6598</a>.</p>
       </div>
       <div class="panel panel-handoff" id="form-handoff" hidden tabindex="-1">
         <h2>Last step: send it to us.</h2>
@@ -175,9 +191,7 @@
     <aside class="reserve-side">
       <div class="side-card">
         <h2 class="side-h">Rather talk now?</h2>
-        <a class="side-link" href="tel:+14062336598"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg><span><b>Call us</b>406-233-6598</span></a>
-        <a class="side-link" href="sms:+14062336598"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chat"></use></svg><span><b>Text us</b>406-233-6598</span></a>
-        <a class="side-link" href="mailto:BridgerBayworks@gmail.com"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-mail"></use></svg><span><b>Email</b>BridgerBayworks@gmail.com</span></a>
+        <div class="side-link side-call"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-phone"></use></svg><span><b>Call or text</b>406-233-6598</span><span class="side-actions"><a class="side-pill" href="tel:+14062336598">Call</a><a class="side-pill" href="sms:+14062336598">Text</a></span></div>
       </div>
       <div class="side-card">
         <h2 class="side-h">The shop</h2>
@@ -197,7 +211,7 @@
   <div class="footer-body">
     <div class="wrap footer-grid">
       <div class="footer-brand">
-        <a class="brand brand-footer" href="../" aria-label="Bridger Bayworks DIY Garage, home"><img class="brand-logo" src="../assets/brand/bridger-bayworks-logo.png?v=20261019-lead-email" alt="Bridger Bayworks DIY Garage" width="360" height="360" decoding="async"></a>
+        <a class="brand brand-footer" href="../" aria-label="Bridger Bayworks DIY Garage, home"><img class="brand-logo" src="../assets/brand/bridger-bayworks-logo.png?v=20261102-booking" alt="Bridger Bayworks DIY Garage" width="360" height="360" decoding="async"></a>
         <p class="script">Drive More. Do More.</p>
         <address>
           <a href="https://www.google.com/maps/dir/?api=1&destination=201+S+Weaver+St+Building+A+Belgrade+MT+59714" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pin"></use></svg><span>201 S Weaver St, Building A<br>Belgrade, MT 59714</span></a>
@@ -244,8 +258,8 @@
   <a href="sms:+14062336598"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chat"></use></svg><span>Text</span></a>
   <a class="mb-primary" href="../reserve/"><span>Reserve a Bay</span></a>
 </div>
-<script src="../assets/config.js?v=20261019-lead-email"></script>
-<script src="../assets/bb-core.js?v=20261019-lead-email"></script>
-<script src="../assets/site.js?v=20261019-lead-email" defer></script>
+<script src="../assets/config.js?v=20261102-booking"></script>
+<script src="../assets/bb-core.js?v=20261102-booking"></script>
+<script src="../assets/site.js?v=20261102-booking" defer></script>
 </body>
 </html>

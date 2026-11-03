@@ -148,7 +148,7 @@ export function planBuilder(ctx) {
       <label class="check"><input type="checkbox" id="plan-impact"><span>Impact guns</span><em>+$${r.impact}/hr</em></label>
       <label class="check"><input type="checkbox" id="plan-coolant"><span>Coolant disposal</span><em>+$${r.coolantDisposal}</em></label>
     </fieldset>
-    <p class="plan-free">${ctx.icon('drop')}<span>Used oil disposal is free.</span></p>
+    <p class="plan-free">${ctx.icon('drop')}<span>Used oil disposal is ${r.oilDisposal === 0 ? 'free' : `$${r.oilDisposal}`}.</span></p>
   </div>
   <div class="plan-total">
     <p class="plan-label">Estimated total</p>

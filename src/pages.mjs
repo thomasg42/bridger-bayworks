@@ -7,13 +7,20 @@ import {
 } from './layout.mjs';
 import { liftStory, serviceCards, whyList, ratesStrip, planBuilder, rateTable, diagnosticScene, communityScene } from './components.mjs';
 
+// "Used oil and coolant disposal are $5 each." Reads the config, so a fee change can't leave stale copy.
+function disposalLine(r) {
+  const fee = (n) => (n === 0 ? 'free' : `$${n}`);
+  if (r.oilDisposal === r.coolantDisposal) return `Used oil and coolant disposal are ${r.oilDisposal === 0 ? 'free' : `$${r.oilDisposal} each`}`;
+  return `Used oil disposal is ${fee(r.oilDisposal)} and coolant disposal is ${fee(r.coolantDisposal)}`;
+}
+
 // Shared FAQ answers. Prices read from config so a rate change cannot leave a stale answer.
 function faqs(ctx) {
   const { SITE } = ctx;
   const r = SITE.rates;
   const a = SITE.address;
   const cost = SITE.showPrices
-    ? `Lift and shop time is $${r.lift} an hour. Tool access and impact guns are $${r.tools} an hour each. Used oil disposal is free and coolant disposal is $${r.coolantDisposal}.`
+    ? `Lift and shop time is $${r.lift} an hour. Tool access and impact guns are $${r.tools} an hour each. ${disposalLine(r)}.`
     : 'Pricing is hourly. Call or text us for current rates.';
   return {
     what: ['What is a DIY garage?', 'A shop where you rent the space and the equipment and do the work yourself. At Bridger Bayworks you get a bay with a professional lift, quality tools, and a crew nearby if you need help.'],
@@ -22,7 +29,7 @@ function faqs(ctx) {
     vehicles: ['What vehicles can I bring?', 'Cars, trucks, and SUVs. All makes and models are welcome.'],
     help: ['Can someone help me if I get stuck?', 'Yes. Work at your own pace with our knowledgeable crew nearby if you need help.'],
     hours: ['When are you open?', '7 days a week. Hours may vary, so reserve your bay ahead of time.'],
-    fluids: ['What do I do with used oil and coolant?', SITE.showPrices ? `Leave it with us. Used oil disposal is free and coolant disposal is $${r.coolantDisposal}.` : 'Leave it with us. Ask us about disposal when you book.'],
+    fluids: ['What do I do with used oil and coolant?', SITE.showPrices ? `Leave it with us. ${disposalLine(r)}.` : 'Leave it with us. Ask us about disposal when you book.'],
     regular: ['Is there a rate for regulars?', SITE.showPrices ? `Yes. If you use the shop more than ${r.regularHours} hours a month, month after month, lift and shop time drops to $${r.liftRegular} an hour.` : 'Yes. Ask us about the regular-use rate.'],
     reserve: ['How do I reserve a bay?', `Book online, call or text ${SITE.phone.display}, or stop by ${a.street} in ${a.city}.`],
     where: ['Where is the shop?', `${a.street}, ${a.city}, ${a.region} ${a.zip}. A short drive from Bozeman, Manhattan, and Three Forks.`],
@@ -45,14 +52,14 @@ const home = {
     const f = faqs(ctx);
     return `
 <!-- HERO: Higgsfield shop-lift clip (Lane 2 Codex, 2026-10-03), built from the real shop (IMG_7028).
-     Full-bleed, the text sits over the clip, and scrolling scrubs it (HERO-SLOT.md).
+     Full-bleed, the text sits over the clip, and the 6 s clip plays on a loop (HERO-SLOT.md).
      Source deck: ../marketing/shop-lift-hero/. Spec: website/HERO-SLOT.md. Keep the h1 text and both buttons. -->
 <section class="hero" data-hero-slot="higgsfield" aria-labelledby="hero-title">
   <div class="hero-media" aria-hidden="true">
     <img class="hero-poster" src="${ctx.asset('hero/shop-lift-poster.jpg')}" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
-    <canvas class="hero-canvas" data-hero-canvas></canvas>
-    <video class="hero-video" data-hero-video data-src="${ctx.asset('hero/shop-lift-hero-scrub.mp4')}" poster="${ctx.asset('hero/shop-lift-poster.jpg')}" muted playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
+    <video class="hero-video" data-hero-video data-src="${ctx.asset('hero/shop-lift-hero.mp4')}" poster="${ctx.asset('hero/shop-lift-poster.jpg')}" autoplay muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
   </div>
+  <button class="hero-toggle" type="button" data-video-toggle aria-label="Pause the background video" hidden>${ctx.icon('pause', 'ico ico-pause')}${ctx.icon('play', 'ico ico-play')}</button>
   <div class="hero-inner">
     <div class="wrap">
     <div class="hero-copy">
@@ -212,7 +219,7 @@ ${pageHero(ctx, {
       ${['Oil and filter changes', 'Brakes and rotors', 'Suspension and steering', 'Exhaust work', 'Transmission and differential fluid', 'A look under a car before you buy it']
         .map((j, i) => `<li class="reveal" style="--i:${i}">${ctx.icon('wrench')}<span>${j}</span></li>`).join('')}
     </ul>
-    <p class="center reveal">Not sure your job fits? <a class="text-link" href="${ctx.reserve({ service: 'other' })}">Ask us${ctx.icon('arrow')}</a></p>
+    <p class="center reveal">Not sure your job fits? <a class="text-link" href="${ctx.reserve({ service: 'quote' })}">Ask us${ctx.icon('arrow')}</a></p>
   </div>
 </section>
 
@@ -247,7 +254,7 @@ ${pageHero(ctx, {
   kicker: 'Tool rental',
   h1: 'Tool Rental for <span class="blue-light">DIY Car Repair</span>',
   lead: 'Don’t buy a tool you’ll use once. Use ours by the hour, right next to the lift.',
-  cta: 'Reserve a bay with tools', ctaParams: { service: 'tools' },
+  cta: 'Reserve a bay with tools', ctaParams: { service: 'lift', tools: '1' },
 })}
 
 <section class="section section-paper">
@@ -262,7 +269,7 @@ ${pageHero(ctx, {
       <div class="card card-static reveal" style="--i:1"><span class="card-ico">${ctx.icon('impact')}</span><h3>1/2" and 3/8" impact guns</h3><p>For lug nuts, suspension bolts, and anything rusted tight.</p><span class="card-foot"><span class="chip">${ctx.price('impact', '/hr')}</span></span></div>
       <div class="card card-static reveal" style="--i:2"><span class="card-ico">${ctx.icon('gear')}</span><h3>Shop equipment</h3><p>Lifts, workbenches, compressors, and more.</p><span class="card-foot"><span class="chip">In the shop</span></span></div>
     </div>
-    <p class="center reveal">Need something specific? <a class="text-link" href="${ctx.reserve({ service: 'tools' })}">Ask us before you come in${ctx.icon('arrow')}</a></p>
+    <p class="center reveal">Need something specific? <a class="text-link" href="${ctx.reserve({ service: 'quote' })}">Ask us before you come in${ctx.icon('arrow')}</a></p>
   </div>
 </section>
 
@@ -272,7 +279,7 @@ ${pageHero(ctx, {
       <p class="kicker">Here a lot?</p>
       <h2>Regulars get a <span class="blue">better deal</span></h2>
       <p class="section-lead">Tool pricing for regular users can be worked out depending on how often you’re here and what you’re using.</p>
-      <a class="btn btn-royal" href="${ctx.reserve({ service: 'regular' })}"><span>Ask about regular pricing</span>${ctx.icon('arrow')}</a>
+      <a class="btn btn-royal" href="${ctx.reserve({ service: 'quote' })}"><span>Ask about regular pricing</span>${ctx.icon('arrow')}</a>
     </div>
     <div class="reveal">${SITE.showPrices ? rateTable(ctx) : ''}</div>
   </div>
@@ -285,7 +292,7 @@ ${pageHero(ctx, {
   </div>
 </section>
 
-${ctaBand(ctx, { title: 'Tell us what you’re working on.', params: { service: 'tools' } })}`;
+${ctaBand(ctx, { title: 'Tell us what you’re working on.', params: { service: 'lift', tools: '1' } })}`;
   },
 };
 
@@ -382,11 +389,11 @@ ${pageHero(ctx, {
       <p class="kicker">Standard rates</p>
       <h2>What it <span class="blue">costs</span></h2>
       ${rateTable(ctx)}
-      <div class="rates-table-cta"><a class="btn btn-yellow" href="${ctx.reserve({ service: 'other' })}"><span>Get a Quote</span>${ctx.icon('arrow')}</a></div>
+      <div class="rates-table-cta"><a class="btn btn-yellow" href="${ctx.reserve({ service: 'quote' })}"><span>Get a Quote</span>${ctx.icon('arrow')}</a></div>
     </div>
     <div class="stack">
-      ${SITE.showPrices ? `<div class="note-card reveal"><span class="card-ico">${ctx.icon('clock')}</span><div><h3>Regular-use rate</h3><p>Using the shop more than ${r.regularHours} hours a month, month after month? Your lift and shop rate drops to <strong>$${r.liftRegular} an hour</strong>.</p><a class="text-link" href="${ctx.reserve({ service: 'regular' })}">Ask about the regular rate${ctx.icon('arrow')}</a></div></div>` : ''}
-      <div class="note-card reveal"><span class="card-ico">${ctx.icon('people')}</span><div><h3>Bring a friend</h3><p>Send people our way and you can earn free shop time. Ask us how referral credit works.</p><a class="text-link" href="${ctx.reserve({ service: 'other' })}">Ask us${ctx.icon('arrow')}</a></div></div>
+      ${SITE.showPrices ? `<div class="note-card reveal"><span class="card-ico">${ctx.icon('clock')}</span><div><h3>Regular-use rate</h3><p>Using the shop more than ${r.regularHours} hours a month, month after month? Your lift and shop rate drops to <strong>$${r.liftRegular} an hour</strong>.</p><a class="text-link" href="${ctx.reserve({ service: 'quote' })}">Ask about the regular rate${ctx.icon('arrow')}</a></div></div>` : ''}
+      <div class="note-card reveal"><span class="card-ico">${ctx.icon('people')}</span><div><h3>Bring a friend</h3><p>Send people our way and you can earn free shop time. Ask us how referral credit works.</p><a class="text-link" href="${ctx.reserve({ service: 'quote' })}">Ask us${ctx.icon('arrow')}</a></div></div>
     </div>
   </div>
 </section>
@@ -615,6 +622,9 @@ const reserve = {
   body: (ctx) => {
     const { SITE, esc } = ctx;
     const endpoint = SITE.leadEndpoint;
+    // Lift time first, then diagnostics, then a plain quote (Thomas, 2026-11-02). Values match bb-core.js.
+    const services = [['lift', 'Lift time'], ['diagnostics', 'Diagnostics and scan tools'], ['quote', 'Just get a quote']];
+    const hrs = (n) => `${n} hr${n === 1 ? '' : 's'}`;
     return `${crumbs(ctx, 'Reserve a Bay')}
 <section class="reserve-hero">
   <div class="wrap">
@@ -628,16 +638,14 @@ const reserve = {
   <div class="wrap reserve-grid">
     <div class="form-card">
       <form id="reserve-form" class="reserve-form" method="post"${endpoint ? ` action="${esc(endpoint)}"` : ''} novalidate data-endpoint="${esc(endpoint)}">
-        <div class="hp" aria-hidden="true"><label for="f-company">Company</label><input id="f-company" type="text" name="company" tabindex="-1" autocomplete="off"></div>
+        <!-- Honeypot. Its name is one no browser AutoFill recognises: a field called "company" gets
+             filled from the visitor's contact card, and a real request would vanish as spam. -->
+        <div class="hp" aria-hidden="true"><label for="f-bbcheck">Leave this empty</label><input id="f-bbcheck" type="text" name="bb_check" tabindex="-1" autocomplete="off"></div>
         <div class="field full">
           <label for="f-service">What do you need? <b aria-hidden="true">*</b></label>
           <select id="f-service" name="service" required>
             <option value="">Choose one</option>
-            <option value="lift">Lift time</option>
-            <option value="tools">Tool rental</option>
-            <option value="diagnostics">Diagnostics / scan tools</option>
-            <option value="regular">Regular-use rate</option>
-            <option value="other">A quote for something else</option>
+            ${services.map(([v, label]) => `<option value="${v}">${label}</option>`).join('\n            ')}
           </select>
         </div>
         <div class="field">
@@ -655,19 +663,30 @@ const reserve = {
         </div>
         <div class="field">
           <label for="f-vehicle">Vehicle <b aria-hidden="true">*</b></label>
-          <input id="f-vehicle" type="text" name="vehicle" required maxlength="80" placeholder="Year, make, model">
+          <!-- Free text, not something to AutoFill. Safari may still show its own keyboard bar. -->
+          <input id="f-vehicle" type="text" name="vehicle" required maxlength="80" placeholder="Year, make, model" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
         </div>
-        <div class="field">
+        <!-- Time (Thomas, 2026-11-02): a job with a known length, or a diagnosis, books straight
+             onto Max's calendar from the open slots (site.js + bb-core.js). Anything else: we call. -->
+        <div class="field full" id="job-row">
+          <label for="f-job">What’s the job? <span class="opt">(if you know)</span></label>
+          <select id="f-job" name="job" aria-describedby="f-job-hint">
+            <option value="">Not sure yet</option>
+            ${SITE.jobs.map((j) => `<option value="${esc(j.id)}">${esc(j.label)} (${hrs(j.bayHours)})</option>`).join('\n            ')}
+            <option value="other">Something else</option>
+          </select>
+          <small id="f-job-hint">Pick your job and book a time. Anything else, we’ll call you to set one.</small>
+        </div>
+        <fieldset class="field full slot-picker" id="slot-picker" name="slot" hidden>
+          <legend>Pick a day and time <b aria-hidden="true">*</b></legend>
+          <p class="slot-note" id="slot-note" aria-live="polite">Checking our calendar…</p>
+          <div class="slot-days" id="slot-days"></div>
+          <div class="slot-times" id="slot-times"></div>
+        </fieldset>
+        <div class="field full" id="callback" hidden>
+          <p class="callback-note" id="callback-note">We’ll call you to set a time.</p>
           <label for="f-date">Preferred day <span class="opt">(optional)</span></label>
           <input id="f-date" type="date" name="date">
-        </div>
-        <div class="field">
-          <label for="f-hours">How long? <span class="opt">(optional)</span></label>
-          <select id="f-hours" name="hours">
-            <option value="">Not sure</option>
-            ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => `<option value="${h}">${h} hour${h > 1 ? 's' : ''}</option>`).join('')}
-            <option value="full-day">Full day</option>
-          </select>
         </div>
         <fieldset class="field full checks">
           <legend>Add-ons <span class="opt">(optional)</span></legend>
@@ -676,20 +695,22 @@ const reserve = {
           <label class="check"><input type="checkbox" name="coolant" value="yes"><span>Coolant disposal</span></label>
         </fieldset>
         <div class="field full">
-          <label for="f-details">What’s the job? <b aria-hidden="true">*</b></label>
-          <textarea id="f-details" name="details" required maxlength="2000" rows="5" placeholder="Brakes and rotors on the front, first time doing it myself."></textarea>
+          <label for="f-details">Describe what’s going on with your car <b aria-hidden="true">*</b></label>
+          <small id="f-details-hint">Why are you coming to the shop? If you already know the job, tell us. If not, tell us what you notice.</small>
+          <textarea id="f-details" name="details" required maxlength="2000" rows="5" autocomplete="off" aria-describedby="f-details-hint" placeholder="When I hit my brakes they squeak, so I’m pretty sure it’s a brake job."></textarea>
         </div>
         <div class="field full">
-          <label class="check consent"><input type="checkbox" name="notify" value="yes"><span>Yes, you can send me text messages and email notifications.</span></label>
-          <p class="fine">You can opt out of texts and emails anytime.</p>
+          <label class="check consent"><input type="checkbox" name="notify" value="yes"><span>Yes, you can send me email notifications.</span></label>
+          <p class="fine">You can opt out anytime.</p>
           <button class="btn btn-yellow btn-lg btn-block" type="submit"><span>Submit Form</span></button>
         </div>
       </form>
       <noscript><p class="panel panel-warn">This form needs JavaScript. Call or text us at <a href="${ctx.tel}">${SITE.phone.display}</a>.</p></noscript>
 
       <div class="panel panel-ok" id="form-thanks" hidden tabindex="-1">
-        <h2>Sent. We have it.</h2>
-        <p>We’ll get back to you at the number you gave. Need us sooner? Call or text <a href="${ctx.tel}">${SITE.phone.display}</a>.</p>
+        <h2 id="thanks-h">Sent. We have it.</h2>
+        <p id="thanks-booked" hidden>You’re on our calendar: <b id="thanks-slot"></b>. Need to change it? Call or text <a href="${ctx.tel}">${SITE.phone.display}</a>.</p>
+        <p id="thanks-call">We’ll get back to you at the number you gave. Need us sooner? Call or text <a href="${ctx.tel}">${SITE.phone.display}</a>.</p>
       </div>
       <div class="panel panel-handoff" id="form-handoff" hidden tabindex="-1">
         <h2>Last step: send it to us.</h2>
@@ -709,9 +730,7 @@ const reserve = {
     <aside class="reserve-side">
       <div class="side-card">
         <h2 class="side-h">Rather talk now?</h2>
-        <a class="side-link" href="${ctx.tel}">${ctx.icon('phone')}<span><b>Call us</b>${SITE.phone.display}</span></a>
-        <a class="side-link" href="${ctx.sms}">${ctx.icon('chat')}<span><b>Text us</b>${SITE.phone.display}</span></a>
-        <a class="side-link" href="mailto:${SITE.email}">${ctx.icon('mail')}<span><b>Email</b>${SITE.email}</span></a>
+        <div class="side-link side-call">${ctx.icon('phone')}<span><b>Call or text</b>${SITE.phone.display}</span><span class="side-actions"><a class="side-pill" href="${ctx.tel}">Call</a><a class="side-pill" href="${ctx.sms}">Text</a></span></div>
       </div>
       <div class="side-card">
         <h2 class="side-h">The shop</h2>

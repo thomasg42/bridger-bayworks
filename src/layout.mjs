@@ -76,6 +76,8 @@ const sprite = `<svg width="0" height="0" style="position:absolute" aria-hidden=
 <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13.5 6.5L19 12l-5.5 5.5"/></symbol>
 <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></symbol>
 <symbol id="i-scan" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="15" rx="2"/><rect x="8.5" y="5" width="7" height="5" rx=".8"/><path d="M10 13.5h4M12 17.5v2.5a1.5 1.5 0 0 0 1.5 1.5H17"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M8.5 5.5v13l10-6.5z"/></symbol>
 </defs></svg>`;
 
 // ---------- head ----------

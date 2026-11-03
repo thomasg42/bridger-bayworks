@@ -46,12 +46,32 @@ export const SITE = {
     regularHours: 15,
     tools: 5,          // tool access, per hour
     impact: 5,         // 3/8" & 1/2" impact guns, per hour
-    oilDisposal: 0,    // used oil disposal
+    oilDisposal: 0,    // used oil disposal: free (Max, 2026-10-01; Thomas kept it free 2026-11-02)
     coolantDisposal: 5,
   },
 
+  // "What's the job?" presets on the reserve form (Thomas, 2026-11-02). hours = the work itself;
+  // bayHours = what goes on Max's calendar. Oil change: 1 hour max. Wheel bearings: a 5 hr job
+  // plus 1 hr so nobody is rushed. Any other job: no time picker, we call them to set one.
+  jobs: [
+    { id: 'oil-change', label: 'Oil change', hours: 1, bayHours: 1 },
+    { id: 'wheel-bearings', label: 'Wheel bearings', hours: 5, bayHours: 6 },
+  ],
+
+  // Online booking straight onto Max's Google Calendar, which n8n reads and writes
+  // (Thomas, 2026-11-02). The site offers only times with nothing else on that calendar.
+  booking: {
+    timeZone: 'America/Denver',
+    openHour: 9,         // 9 AM. Thomas: "I think it's 9 till 6". Confirm with Max.
+    closeHour: 18,       // 6 PM: a booking must end by then
+    firstDay: 2,         // tomorrow is already set, so on Monday the first bookable day is Wednesday
+    days: 14,            // how far ahead the picker reaches
+    diagnosticsHours: 1, // a diagnosis books one hour of shop time
+    availabilityEndpoint: 'https://tggai.app.n8n.cloud/webhook/bridger-bayworks-availability',
+  },
+
   // Sitemap lastmod + footer year.
-  updated: '2026-10-19',
+  updated: '2026-11-02',
   // Bump on every deploy so phones don't keep a stale stylesheet/script.
-  assetVersion: '20261019-lead-email',
+  assetVersion: '20261102-booking',
 };

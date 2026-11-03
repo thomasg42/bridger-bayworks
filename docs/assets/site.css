@@ -25,6 +25,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+/* `hidden` must win over any display rule (the hero toggle is a grid, the form is a grid). */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 12px); }
 body {
   margin: 0;
@@ -161,36 +163,39 @@ main { position: relative; }
 /* ---------- ridge motif ---------- */
 .ridge { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: clamp(90px, 14vw, 200px); pointer-events: none; }
 
-/* ---------- home hero: full-bleed shop clip with the text over it (see HERO-SLOT.md) ---------- */
-/* .hero is the scroll track. The clip pins under the header; once site.js has the video ready it
-   adds .is-scrub, the track grows by --hero-scrub, and scrolling scrubs the clip. The copy pins
-   with the clip when it fits one screen (.is-pinned), otherwise it scrolls up over the pinned clip. */
+/* ---------- home hero: full-bleed shop clip looping behind the text (see HERO-SLOT.md) ---------- */
+/* One screen tall. The poster paints first; site.js fades the video in once it is really
+   playing. If the copy is taller than the screen (small phones), the hero grows and the media
+   stretches with it. */
 .hero {
   --hero-stage: max(420px, calc(100vh - var(--header-h)));
-  --hero-scrub: 150vh;
   position: relative; isolation: isolate; color: #fff; background: var(--navy-900);
 }
 @supports (height: 100svh) {
-  .hero { --hero-stage: max(420px, calc(100svh - var(--header-h))); --hero-scrub: 150svh; }
+  .hero { --hero-stage: max(420px, calc(100svh - var(--header-h))); }
 }
-.hero.is-scrub::after { content: ''; display: block; height: var(--hero-scrub); }
-.hero-media { position: sticky; top: var(--header-h); z-index: 0; height: var(--hero-stage); overflow: hidden; background: var(--navy-900); }
-.hero-poster, .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 43% 50%; pointer-events: none; }
-.hero-canvas { opacity: 0; transition: opacity .4s ease; }
-.hero-canvas.is-ready { opacity: 1; }
-/* Safari can paint a play icon over a paused video, so the decoder stays offscreen and
-   site.js draws its frames onto the canvas (same as the GMM hero). */
-.hero-video { position: fixed; left: -100px; top: -100px; width: 1px; height: 1px; opacity: 0; clip-path: inset(50%); pointer-events: none; }
+.hero-media { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: var(--navy-900); }
+.hero-poster, .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 43% 50%; pointer-events: none; }
+/* Invisible until it plays, so a refused autoplay (Low Power Mode) shows the photo, never Safari's play icon. */
+.hero-video { opacity: 0; transition: opacity .6s ease; }
+.hero-video.is-playing { opacity: 1; }
 .hero-video::-webkit-media-controls,
 .hero-video::-webkit-media-controls-panel,
 .hero-video::-webkit-media-controls-start-playback-button,
 .hero-video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; opacity: 0; pointer-events: none; }
+.hero-toggle {
+  position: absolute; z-index: 2; top: 14px; right: 14px; width: 40px; height: 40px; padding: 0;
+  display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .4); border-radius: 50%;
+  background: rgba(20, 28, 51, .45); color: #fff; cursor: pointer;
+}
+.hero-toggle:hover { background: rgba(20, 28, 51, .72); }
+.hero-toggle .ico { width: 18px; height: 18px; }
+.hero-toggle .ico-play, .hero-toggle.is-paused .ico-pause { display: none; }
+.hero-toggle.is-paused .ico-play { display: block; }
 .hero-inner {
-  position: relative; z-index: 1; isolation: isolate;
-  margin-top: calc(-1 * var(--hero-stage)); min-height: var(--hero-stage);
+  position: relative; z-index: 1; isolation: isolate; min-height: var(--hero-stage);
   display: flex; align-items: center; padding: 56px 0;
 }
-.hero-inner.is-pinned { position: sticky; top: var(--header-h); }
 /* The text overlaps the lift action (Kraken-style, left). A light tint, never a solid panel,
    so the clip visibly runs behind the words; heavier only where the words sit. */
 .hero-inner::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background:
@@ -210,7 +215,7 @@ main { position: relative; }
   .hero-inner { padding: 28px 0 calc(64px + env(safe-area-inset-bottom) + 24px); }
   .hero-inner > .wrap { width: calc(100% - 44px); }
 }
-@media print { .hero.is-scrub::after, .hero-canvas { display: none; } }
+@media print { .hero-video, .hero-toggle { display: none; } }
 .hero .lead { color: #E6EBF8; }
 
 /* ---------- inner page hero ---------- */
@@ -452,7 +457,7 @@ a.card:hover .card-more .ico { transform: translateX(3px); }
 .form-card { background: var(--white); border: 1px solid var(--ice-200); border-radius: 20px; box-shadow: var(--shadow); padding: clamp(20px, 4vw, 36px); }
 .reserve-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 @media (max-width: 620px) { .reserve-form { grid-template-columns: 1fr; } }
-.field { display: grid; gap: 6px; min-width: 0; }
+.field { display: grid; gap: 6px; min-width: 0; align-content: start; } /* a hint under one field must not stretch its neighbour */
 .field.full { grid-column: 1 / -1; }
 .field label, .field legend { font-weight: 600; color: var(--navy-800); }
 .field b { color: var(--err); font-weight: 600; }
@@ -466,6 +471,23 @@ a.card:hover .card-more .ico { transform: translateX(3px); }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--royal); background: #fff; box-shadow: 0 0 0 3px rgba(61, 90, 168, .2); }
 .field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: var(--err); background: #FDF3F2; }
 .field-err { color: var(--err); font-size: .9rem; font-weight: 600; }
+/* Day and time picker: pill radios. Days scroll sideways on a phone; a full day is greyed out. */
+.slot-picker { border: 0; padding: 0; margin: 0; }
+.slot-picker legend { margin-bottom: 6px; padding: 0; }
+.slot-note { margin: 0 0 10px; color: var(--ink-soft); font-size: .92rem; }
+.slot-days { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; }
+.slot-times { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-top: 10px; }
+.slot { position: relative; display: block; cursor: pointer; scroll-snap-align: start; }
+.slot input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.slot span { display: grid; place-items: center; min-height: 48px; padding: 6px 12px; border: 1.5px solid #CDD3E3; border-radius: 10px; background: var(--paper); color: var(--navy-800); font-weight: 600; line-height: 1.2; text-align: center; white-space: nowrap; }
+.slot-days .slot span { min-width: 74px; }
+.slot span b { color: inherit; font-weight: 800; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; } /* not the red required-asterisk style */
+.slot span small { font-size: .72rem; font-weight: 500; }
+.slot input:checked + span { background: var(--royal); border-color: var(--royal); color: #fff; }
+.slot input:focus-visible + span { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.slot.is-full { cursor: not-allowed; }
+.slot.is-full span { opacity: .45; }
+.callback-note { margin: 0 0 4px; font-weight: 600; color: var(--navy-800); }
 .checks { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .checks legend { margin-bottom: 8px; padding: 0; }
 .checks .check { display: inline-flex; gap: 10px; align-items: center; padding: 10px 14px; border: 1.5px solid #CDD3E3; border-radius: 10px; background: var(--paper); cursor: pointer; font-weight: 500; }
@@ -489,6 +511,11 @@ a.card:hover .card-more .ico { transform: translateX(3px); }
 .side-link span { display: grid; }
 .side-link b { font-weight: 600; color: var(--navy-800); }
 a.side-link:hover b { color: var(--royal); }
+/* One bubble for the phone number, with Call and Text side by side inside it. */
+.side-call { align-items: center; }
+.side-link .side-actions { display: flex; gap: 8px; margin-left: auto; }
+.side-pill { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; background: var(--royal); color: #fff; font-weight: 600; text-decoration: none; }
+.side-pill:hover { background: var(--royal-600); color: #fff; }
 .side-rates .rate-table { box-shadow: none; border: 1px solid var(--paper-2); }
 .side-rates .rate-table td, .side-rates .rate-table th { padding: 10px 12px; font-size: .95rem; }
 
