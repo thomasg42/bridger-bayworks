@@ -6,7 +6,17 @@ Multi-page SEO site for a rent-a-bay DIY garage at 201 S Weaver St, Building A, 
 - **Repo:** `thomasg42/bridger-bayworks`, Pages from `main` → `/docs`
 - **Deploy:** `bash deploy-preview.sh` from Thomas's Terminal (builds, tests, pushes, then waits until bridgerbayworks.com serves the new `assetVersion`)
 
-## Current: looping hero + online booking (2026-11-02, Lane 1 Claude Code)
+## Current: "Same job, shop vs here" savings cards (2026-11-03, Lane 1 Claude Code)
+
+Built and tested (39/39), **not deployed. Thomas: "I don't want to push out this live site right now."** assetVersion `20261103-savings`. He asked for the DIY-garage savings comparison he saw on another shop's site, as the first thing under the hero.
+
+- Home page, directly after the hero's yellow strip: three cards, biggest saving first. Tacoma clutch: shop $1,969 vs $612 here (save about $1,357). Honda Pilot timing belt: $1,323 vs $503 (about $820). F-150 spark plugs: $345 vs $226 (about $119).
+- Shop side = middle of RepairPal's national average range (parts + labor). Our side = parts at store prices + bay time at $40/hr (Thomas's revision, 2026-11-03: "all you're paying for is the bay and the parts"). Tool access shown as $5/hr extra in the fine print. Stacked bars: parts + shop labor vs parts + your bay time. Bars grow in on scroll; dollar figures never animate.
+- Data in `site.config.mjs` `savings` (`shop`, `parts`, `diyParts`, `bayHours`, source URL); math in `components.mjs` `jobSavings`. Claims status and parts sources in `../context/product-facts.md`. `showPrices: false` removes the whole section.
+- Real customer job = one config entry: `shop: [quote, quote]`, `diyParts: [paid, paid]`, `bayHours`, `badge: 'Real Bridger Bayworks customer'`.
+- Tests: section is the element right after `.shop-strip`; saving = shop minus here; here = parts + hours x lift; every source link present; no "real customer" badge.
+
+## Looping hero + online booking (2026-11-02, Lane 1 Claude Code)
 
 Built and tested (37/37), **site not deployed yet**; the booking backend in n8n is live. Record: `review/00-CURRENT-2026-11-02-hero-and-reserve.md`. Before-snapshot: `review/2026-11-02-before-hero-reserve/`.
 

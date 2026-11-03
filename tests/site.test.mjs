@@ -11,6 +11,7 @@ import vm from 'node:vm';
 import { SITE } from '../site.config.mjs';
 import { PAGES } from '../src/pages.mjs';
 import { makeCtx, renderPage } from '../src/layout.mjs';
+import { jobSavings } from '../src/components.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const WEB = resolve(here, '..');
@@ -177,6 +178,41 @@ test('signature move: the lift story is on home and how-it-works with four steps
     assert.ok(d.querySelector('[data-lift-story] [data-lift-load]'), `${rel}: lift story missing`);
     assert.equal(d.querySelectorAll('.lift-step').length, 4);
   }
+});
+
+test('savings cards: first thing under the hero, math adds up, sources cited', { skip: !SITE.showPrices }, () => {
+  const d = pages.find((p) => p.rel === 'index.html').document;
+  const sec = d.querySelector('#savings');
+  assert.ok(sec, 'home: savings section missing');
+  // Directly after the hero and its yellow strip (Thomas, 2026-11-03: "the first thing you see").
+  assert.equal(d.querySelector('.shop-strip').nextElementSibling, sec, 'savings is not right under the hero');
+  const cards = sec.querySelectorAll('.save-card');
+  assert.equal(cards.length, SITE.savings.length);
+  const num = (el) => Number(el.textContent.replace(/[^0-9]/g, ''));
+  let last = Infinity;
+  for (const card of cards) {
+    const job = SITE.savings.find((j) => j.vehicle === card.querySelector('h3').textContent);
+    const s = jobSavings(job, SITE.rates);
+    const [shop, here] = [...card.querySelectorAll('.save-row-head strong')].map(num);
+    assert.equal(shop, s.shop);
+    assert.equal(here, s.here);
+    assert.equal(num(card.querySelector('.save-amount')), shop - here, `${job.vehicle}: saving does not equal shop minus here`);
+    assert.ok(s.save > 0 && s.save <= last, 'cards must be positive and biggest first');
+    last = s.save;
+    // Our side is store-price parts plus bay time, and the card says both.
+    assert.equal(s.here, s.parts + job.bayHours * SITE.rates.lift);
+    assert.ok(card.querySelector('.save-row-here .save-note').textContent.includes(`$${s.parts.toLocaleString('en-US')} parts`), `${job.vehicle}: our parts price not shown`);
+    assert.ok(sec.querySelector(`.save-fine a[href="${job.url}"]`), `${job.vehicle}: source link missing`);
+  }
+  assert.ok(!/real (pit row|bridger bayworks)? ?customer/i.test(sec.textContent), 'no "real customer" badge until Max supplies real jobs');
+});
+
+test('savings math: middle of each range, store-price parts plus bay time', () => {
+  const r = { lift: 40, tools: 5 };
+  assert.deepEqual(jobSavings({ shop: [1783, 2155], parts: [993, 995], diyParts: [213, 268], bayHours: 8 }, r),
+    { shop: 1969, shopParts: 994, shopLabor: 975, parts: 241, bay: 320, here: 561, save: 1408 });
+  // No diyParts = same parts price as the shop (a real customer's job can set either).
+  assert.equal(jobSavings({ shop: [900, 900], parts: [300, 300], bayHours: 4 }, r).save, 440);
 });
 
 test('hero: the shop clip plays on a loop behind the text, poster first; h1 and both CTAs intact', () => {

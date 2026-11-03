@@ -5,7 +5,7 @@ import {
   ridge, crumbs, pageHero, ctaBand, businessSchema, breadcrumbSchema, serviceSchema,
   faqSchema, faqList,
 } from './layout.mjs';
-import { liftStory, serviceCards, whyList, ratesStrip, planBuilder, rateTable, diagnosticScene, communityScene } from './components.mjs';
+import { liftStory, serviceCards, whyList, ratesStrip, planBuilder, rateTable, diagnosticScene, communityScene, savingsCompare } from './components.mjs';
 
 // "Used oil and coolant disposal are $5 each." Reads the config, so a fee change can't leave stale copy.
 function disposalLine(r) {
@@ -76,6 +76,8 @@ const home = {
   </div>
 </section>
 <div class="shop-strip"><div class="wrap"><span>${ctx.icon('pin')}Belgrade, Montana</span><span>${ctx.icon('lift')}Professional lifts</span><span>${ctx.icon('wrench')}Tools on site</span><a href="${ctx.link('rates')}">See shop rates ${ctx.icon('arrow')}</a></div></div>
+
+${savingsCompare(ctx)}
 
 <section class="section section-paper" aria-labelledby="get-title">
   <div class="wrap">

@@ -70,8 +70,33 @@ export const SITE = {
     availabilityEndpoint: 'https://tggai.app.n8n.cloud/webhook/bridger-bayworks-availability',
   },
 
+  // "Same job, shop vs here" cards right under the home hero (Thomas, 2026-11-03).
+  // shop + parts = RepairPal's national average range for that job, read 2026-11-03 (url).
+  // diyParts = what a DIYer pays for the parts online/at a store (retail listings read 2026-11-03,
+  // sources in ../context/product-facts.md). Our side = diyParts + bayHours of lift time. Tool access
+  // is extra and said so in the fine print (Thomas: "all you're paying for is the bay and the parts").
+  // Cards print the middle of each range. For a real customer's job, set shop to [quote, quote],
+  // diyParts to [paid, paid], bayHours to what they used, and badge to say so.
+  savings: [
+    // Thomas 2026-11-03: clutch parts "like $200", 8 hours in the bay. Exedy OE kit TYK1515
+    // (2005-2015 V6): $268.48 sale, $315.87 regular at KamiSpeed.
+    { vehicle: 'Toyota Tacoma', job: 'Clutch replacement', shop: [1783, 2155], parts: [993, 995],
+      diyParts: [268, 316], diyPartsName: 'Exedy clutch kit', bayHours: 8,
+      url: 'https://repairpal.com/estimator/toyota/tacoma/clutch-replacement-cost' },
+    // The belt alone is about $40, but a shop also swaps the water pump and tensioner, so the fair
+    // comparison is the full kit. Aisin TKH-002: $212.95 new on eBay, trending $232.22.
+    { vehicle: 'Honda Pilot', job: 'Timing belt replacement', shop: [1127, 1519], parts: [711, 908],
+      diyParts: [213, 232], diyPartsName: 'Aisin timing belt kit with water pump', bayHours: 7,
+      url: 'https://repairpal.com/estimator/honda/pilot/timing-belt-replacement-cost' },
+    // 8 Motorcraft SP-546 plugs (5.4L V8) at $10 to $16.48 each.
+    { vehicle: 'Ford F-150', job: 'Spark plug replacement', shop: [299, 391], parts: [104, 104],
+      diyParts: [80, 132], diyPartsName: '8 Motorcraft plugs', bayHours: 3,
+      url: 'https://repairpal.com/estimator/ford/f-150/spark-plug-replacement-cost' },
+  ],
+  savingsChecked: 'Nov 2026',
+
   // Sitemap lastmod + footer year.
-  updated: '2026-11-02',
+  updated: '2026-11-03',
   // Bump on every deploy so phones don't keep a stale stylesheet/script.
-  assetVersion: '20261102-booking',
+  assetVersion: '20261103-savings',
 };

@@ -132,6 +132,72 @@ export function ratesStrip(ctx) {
   <p class="rates-note reveal">Here more than ${r.regularHours} hours a month, month after month? Your lift rate drops to <strong>$${r.liftRegular}/hr</strong>.</p>`;
 }
 
+// One savings card's numbers: the middle of each range. Shop = its parts + its labor. Here = the
+// parts at store prices + bay time. Saving = shop price minus our price, both as printed.
+export function jobSavings(job, rates) {
+  const mid = ([a, b]) => Math.round((a + b) / 2);
+  const shop = mid(job.shop);
+  const shopParts = mid(job.parts);
+  const parts = mid(job.diyParts || job.parts);
+  const bay = job.bayHours * rates.lift;
+  const here = parts + bay;
+  return { shop, shopParts, shopLabor: shop - shopParts, parts, bay, here, save: shop - here };
+}
+
+// "Same job, shop vs here", straight under the home hero (Thomas, 2026-11-03). Shop bar = its parts
+// + its labor; our bar = store-price parts + bay time. Numbers never animate; the bars grow in.
+export function savingsCompare(ctx) {
+  const { SITE } = ctx;
+  if (!SITE.showPrices || !SITE.savings?.length) return '';
+  const r = SITE.rates;
+  const usd = (n) => `$${n.toLocaleString('en-US')}`;
+  const pct = (n, of) => `${((n / of) * 100).toFixed(1)}%`;
+  const cards = SITE.savings
+    .map((job) => ({ job, s: jobSavings(job, r) }))
+    .sort((a, b) => b.s.save - a.s.save)
+    .map(({ job, s }, i) => `
+    <article class="save-card reveal" style="--i:${i}">
+      <header class="save-top">
+        <h3>${job.vehicle}</h3>
+        <p class="save-job">${job.job}</p>
+        <span class="save-badge">${job.badge || 'Shop price: RepairPal average'}</span>
+      </header>
+      <div class="save-body">
+        <p class="save-label">You save about</p>
+        <p class="save-amount">${usd(s.save)}</p>
+        <div class="save-row">
+          <p class="save-row-head"><span>Typical shop</span><strong>${usd(s.shop)}</strong></p>
+          <div class="save-bar" aria-hidden="true"><span class="seg seg-parts" style="--w:${pct(s.shopParts, s.shop)}"></span><span class="seg seg-shop" style="--w:${pct(s.shopLabor, s.shop)}"></span></div>
+          <p class="save-note">${usd(s.shopParts)} parts + ${usd(s.shopLabor)} shop labor</p>
+        </div>
+        <div class="save-row save-row-here">
+          <p class="save-row-head"><span>At ${SITE.shortName}</span><strong>${usd(s.here)}</strong></p>
+          <div class="save-bar" aria-hidden="true"><span class="seg seg-parts" style="--w:${pct(s.parts, s.shop)}"></span><span class="seg seg-bay" style="--w:${pct(s.bay, s.shop)}"></span></div>
+          <p class="save-note">${usd(s.parts)} parts + ${job.bayHours} hrs bay time</p>
+        </div>
+      </div>
+    </article>`).join('');
+  return `<section class="section section-white savings" id="savings" aria-labelledby="savings-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Same job. Your parts. Your hands.</p>
+      <h2 id="savings-title">Do the work. <span class="blue">Keep the difference.</span></h2>
+      <p class="section-lead">A typical shop's price next to what the same job costs here. You buy the parts at store prices and pay for bay time. No shop labor.</p>
+    </div>
+    <ul class="save-key reveal" aria-label="Bar colors">
+      <li><span class="seg-parts"></span>Parts</li><li><span class="seg-shop"></span>Shop labor</li><li><span class="seg-bay"></span>Your bay time</li>
+    </ul>
+    <div class="save-cards">${cards}
+    </div>
+    <p class="fine save-fine">Typical shop price is the middle of RepairPal's national average range for each job (${SITE.savingsChecked}, before tax): ${SITE.savings.map((j) => `<a href="${j.url}" rel="nofollow noopener" target="_blank">${j.vehicle}</a>`).join(', ')}. Local shops and dealers vary. Our price uses typical online prices for the parts (${SITE.savings.map((j) => j.diyPartsName).filter(Boolean).join(', ')}), which vary by year and engine, plus lift time at $${r.lift}/hr for the hours shown. Tool access is $${r.tools}/hr more if you use ours. Your time depends on the job and your experience, with our crew nearby if you need help.</p>
+    <div class="btn-row save-cta reveal">
+      <a class="btn btn-yellow btn-lg" href="${ctx.link('rates')}#plan"><span>Price out your job</span></a>
+      <a class="btn btn-royal" href="${ctx.reserve()}"><span>Reserve a bay</span>${ctx.icon('arrow')}</a>
+    </div>
+  </div>
+</section>`;
+}
+
 export function planBuilder(ctx) {
   const { SITE } = ctx;
   if (!SITE.showPrices) return '';

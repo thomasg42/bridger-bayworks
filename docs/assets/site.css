@@ -743,3 +743,43 @@ a.side-link:hover b { color: var(--royal); }
 .field .check.consent { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid #CDD3E3; border-radius: 10px; background: var(--paper); cursor: pointer; font-weight: 500; text-align: left; }
 .field .check.consent input { flex: 0 0 20px; width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; accent-color: var(--royal); }
 .field .check.consent span { flex: 1; line-height: 1.35; }
+
+/* 2026-11-03: "Same job, shop vs here" savings cards, right under the home hero.
+   Parts cost the same on both bars; only labor shrinks. Prices never animate, the bars grow in. */
+.savings .section-head { max-width: 820px; margin-bottom: 20px; }
+.save-key { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 18px; padding: 0; font-size: .88rem; font-weight: 600; color: var(--ink-soft); }
+.save-key li { display: inline-flex; align-items: center; gap: 8px; }
+.save-key span { width: 22px; height: 10px; border-radius: 3px; }
+.save-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 980px) { .save-cards { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .save-cards { grid-template-columns: 1fr; gap: 14px; } }
+.save-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #d3dae4; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.save-top { padding: 22px 22px 18px; background: #f5f7fa; border-bottom: 1px solid #dfe4eb; }
+.save-top h3 { font-size: 1.6rem; margin: 0 0 4px; }
+.save-job { margin: 0 0 12px; color: var(--ink-soft); }
+.save-badge { display: inline-block; padding: 7px 11px; border-radius: 999px; background: #e3f1e8; color: #1f5f3a; font: 700 .74rem/1 var(--body); letter-spacing: .08em; text-transform: uppercase; }
+.save-body { padding: 20px 22px 22px; display: grid; gap: 14px; }
+.save-label { margin: 0; text-align: center; font: 600 .8rem/1 var(--body); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+.save-amount { margin: -4px 0 4px; text-align: center; font: 800 clamp(3rem, 6vw, 3.8rem)/1 var(--display); color: var(--ok); }
+.save-row-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 0 0 7px; }
+.save-row-head strong { font: 800 1.35rem/1 var(--display); color: var(--navy-800); }
+.save-row-here .save-row-head span { color: var(--navy-800); font-weight: 600; }
+.save-bar { display: flex; height: 12px; border-radius: 999px; background: #e7ebf0; overflow: hidden; }
+.seg { display: block; flex: none; width: var(--w); height: 100%; }
+.seg-parts { background: #b9c3d1; }
+.seg-shop { background: var(--navy-700); }
+.seg-bay { background: var(--yellow-600); }
+.save-note { margin: 6px 0 0; font-size: .86rem; color: var(--ink-soft); }
+.save-fine { max-width: 860px; margin-top: 18px; }
+.save-fine a { color: inherit; white-space: nowrap; }
+.save-cta { margin-top: 22px; }
+@media (max-width: 640px) {
+  .save-top { padding: 18px 18px 14px; }
+  .save-body { padding: 16px 18px 18px; gap: 12px; }
+  .save-cta .btn { flex: 1 1 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .save-card .seg { transform: scaleX(0); transform-origin: left; transition: transform .9s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 90ms + .25s); }
+  .js .save-card .seg-shop, .js .save-card .seg-bay { transition-delay: calc(var(--i, 0) * 90ms + .7s); }
+  .js .save-card.is-in .seg { transform: none; }
+}
