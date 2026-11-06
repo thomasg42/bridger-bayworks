@@ -7,6 +7,7 @@
 .cb-title { font: 800 clamp(48px, 5.5vw, 74px)/.96 var(--display); letter-spacing: -.015em; margin: 0 0 16px; }
 .cb-title span { color: var(--royal); }
 .cb-intro-copy { font-size: 19px; line-height: 1.4; margin: 0 0 25px; color: var(--cb-muted); }
+.cb-intro-copy strong { color: var(--ink); white-space: nowrap; }
 .cb-shop-photo { position: relative; margin: 0; overflow: hidden; border-radius: 5px; aspect-ratio: 1.72; background: var(--navy-800); }
 .cb-shop-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
 .cb-shop-photo::after { content: ''; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, #141C33DD); }
@@ -21,6 +22,9 @@
 #callback-form { scroll-margin-top: calc(var(--header-h) + 20px); }
 .cb-card h2 { font: 700 38px/1.06 var(--display); text-transform: none; margin: 0 0 13px; letter-spacing: -.01em; }
 .cb-card-intro { font-size: 16px; line-height: 1.5; margin: 0 0 25px; color: var(--cb-muted); }
+.cb-card-intro a { text-underline-offset: 3px; }
+#callback-entry > .cb-card-intro { margin-bottom: 12px; }
+.cb-callback-note { font-size: 13px; line-height: 1.5; color: var(--cb-muted); margin: 0 0 24px; }
 .cb-card-intro strong { color: var(--ink); font-weight: 600; }
 .cb-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .cb-field { min-width: 0; margin-bottom: 17px; }
@@ -77,11 +81,12 @@
   .cb-title { order: 1; font-size: 45px; line-height: .96; margin-bottom: 12px; }
   .cb-title br { display: none; }
   .cb-title span { display: block; }
-  .cb-intro-copy { display: none; }
-  .cb-card { order: 2; width: 100%; padding: 22px 22px 20px; margin-top: 12px; }
+  .cb-intro-copy { display: block; order: 2; font-size: 16px; line-height: 1.45; margin-bottom: 6px; }
+  .cb-card { order: 3; width: 100%; padding: 22px 22px 20px; margin-top: 12px; }
   .cb-card .cb-eyebrow { display: none; }
   .cb-card h2 { font-size: 30px; margin-bottom: 10px; }
   .cb-card-intro { font-size: 14px; line-height: 1.5; margin-bottom: 19px; }
+  .cb-callback-note { font-size: 12px; margin-bottom: 19px; }
   .cb-field { margin-bottom: 15px; }
   .cb-field label { font-size: 12px; }
   .cb-field input { height: 49px; font-size: 16px; }
@@ -91,7 +96,7 @@
   .cb-rate-note { padding-top: 14px; font-size: 12px; }
   .cb-rate-note strong { font-size: 20px; }
   .cb-extras-note { font-size: 10px; }
-  .cb-shop-photo { order: 3; width: 100%; margin-top: 24px; aspect-ratio: 1.8; }
+  .cb-shop-photo { order: 4; width: 100%; margin-top: 24px; aspect-ratio: 1.8; }
   .cb-shop-photo figcaption { flex-direction: row; align-items: center; font-size: 9px; bottom: 14px; left: 15px; right: 15px; }
   .cb-shop-photo figcaption span:first-child { font-size: 17px; }
   .cb-next-steps { grid-template-columns: 1fr; gap: 22px; margin: 26px 0 36px; padding: 0 0 0 22px; }
