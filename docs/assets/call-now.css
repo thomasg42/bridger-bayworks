@@ -1,0 +1,38 @@
+/* Use the existing sticky header so calling never covers the callback form. */
+.header-inner { gap: 12px; }
+.header-phone.header-call-now {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 7px 11px;
+  border: 1px solid var(--yellow);
+  border-radius: 8px;
+  background: var(--yellow);
+  color: var(--navy-800);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.header-call-now .ico { width: 18px; height: 18px; flex: none; }
+.header-call-copy { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.header-call-copy strong { font: 700 14px/1.1 var(--body); }
+.header-call-copy > span { font: 600 12px/1.2 var(--body); font-variant-numeric: tabular-nums; }
+.header-phone.header-call-now:hover { background: #E6B722; color: var(--navy-800); }
+.header-phone.header-call-now:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+@media (min-width: 1081px) and (max-width: 1200px) {
+  .nav-menu a:not(.btn) { padding-inline: 8px; font-size: .9rem; }
+  .nav-cta { margin-left: 4px; }
+  .nav-cta .btn { padding-inline: .7em; }
+}
+@media (max-width: 560px) {
+  .header-inner { gap: 9px; }
+  .header-inner .brand { min-width: 0; }
+  .header-inner .nav { flex: none; }
+  .nav-toggle-label { display: none; }
+}
+@media (max-width: 360px) {
+  .header-phone.header-call-now { gap: 6px; padding-inline: 9px; }
+  .header-call-copy > span { font-size: 11px; }
+}
