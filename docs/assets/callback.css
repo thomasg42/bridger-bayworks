@@ -14,6 +14,11 @@
 .cb-shop-photo figcaption span:first-child { font: 700 19px/1 var(--display); letter-spacing: .04em; }
 .cb-card { background: var(--white); border: 1px solid #DFE0DD; border-radius: 10px; padding: 34px 36px 26px; box-shadow: 0 10px 35px #18243E09; border-top: 4px solid var(--yellow); min-width: 0; scroll-margin-top: calc(var(--header-h) + 16px); }
 .cb-card .cb-eyebrow { margin-bottom: 9px; font-size: 10px; }
+.cb-contact-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 24px; }
+.cb-contact-options a { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 10px 8px; border: 1px solid var(--royal); border-radius: 5px; color: var(--royal); font-size: 14px; font-weight: 600; line-height: 1.25; text-align: center; text-decoration: none; }
+.cb-contact-options a:last-child { background: var(--royal); color: #fff; }
+.cb-contact-options a:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+#callback-form { scroll-margin-top: calc(var(--header-h) + 20px); }
 .cb-card h2 { font: 700 38px/1.06 var(--display); text-transform: none; margin: 0 0 13px; letter-spacing: -.01em; }
 .cb-card-intro { font-size: 16px; line-height: 1.5; margin: 0 0 25px; color: var(--cb-muted); }
 .cb-card-intro strong { color: var(--ink); font-weight: 600; }
