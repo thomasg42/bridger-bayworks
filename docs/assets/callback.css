@@ -57,6 +57,8 @@
 .cb-phone-receipt { padding: 19px 0; border-top: 1px solid var(--cb-line); border-bottom: 1px solid var(--cb-line); }
 .cb-phone-receipt > span { display: block; color: var(--cb-muted); font-size: 12px; }
 .cb-phone-receipt strong { display: block; font-size: 25px; letter-spacing: .01em; margin: 4px 0 0; overflow-wrap: anywhere; }
+.cb-delivery-warning { margin: 14px 0 0; padding: 12px; border-left: 3px solid #8A5A00; background: #FFF8E8; color: #5C3B00; font-size: 13px; line-height: 1.45; }
+.cb-delivery-warning[hidden] { display: none; }
 .cb-confirmation-note { font-size: 12px; color: var(--cb-muted); margin: 15px 0 25px; }
 .cb-success-signoff { display: flex; align-items: center; gap: 12px; font: 600 22px/1.2 var(--display); }
 .cb-signoff-line { height: 2px; width: 30px; background: var(--yellow); }

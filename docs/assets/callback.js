@@ -15,6 +15,10 @@
   var fields = ['firstName', 'lastName', 'phone'];
   var sending = false;
   var sent = false;
+  var leadId = '';
+  var ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'campaign_id', 'adset_id', 'ad_id', 'fbclid'];
+  var ATTR_COOKIE = 'bb_attr_v1';
+  var ATTR_MS = 7 * 24 * 60 * 60 * 1000;
 
   function field(name) { return form.elements.namedItem(name); }
   function clean(value) { return value.trim().replace(/\s+/g, ' '); }
@@ -57,6 +61,213 @@
     failure.focus();
   }
 
+  function uuid() {
+    var cryptoApi = window.crypto;
+    if (cryptoApi && typeof cryptoApi.randomUUID === 'function') return cryptoApi.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
+  function sessionStore() {
+    try { return window.sessionStorage || null; } catch (error) { return null; }
+  }
+
+  function currentLeadId() {
+    if (leadId) return leadId;
+    var store = sessionStore();
+    try {
+      var saved = store && store.getItem('bb_lead_id');
+      if (saved && /^[0-9a-f-]{36}$/i.test(saved)) {
+        leadId = saved;
+        return leadId;
+      }
+    } catch (error) { /* storage can be blocked; the in-memory id still dedupes this page */ }
+    leadId = uuid();
+    try { if (store) store.setItem('bb_lead_id', leadId); } catch (error) { /* receipt still works */ }
+    return leadId;
+  }
+
+  function clearLeadId() {
+    leadId = '';
+    try {
+      var store = sessionStore();
+      if (store) store.removeItem('bb_lead_id');
+    } catch (error) { /* nothing to clear */ }
+  }
+
+  function queryMap(href) {
+    var out = {};
+    var query = String(href || '').split('?')[1] || '';
+    query.split('#')[0].split('&').forEach(function (pair) {
+      try {
+        var cut = pair.indexOf('=');
+        var key = decodeURIComponent((cut >= 0 ? pair.slice(0, cut) : pair).replace(/\+/g, ' '));
+        if (ATTR_KEYS.indexOf(key) === -1) return;
+        var value = decodeURIComponent((cut >= 0 ? pair.slice(cut + 1) : '').replace(/\+/g, ' '));
+        if (!(key in out)) out[key] = value;
+      } catch (error) { /* A malformed optional tag must never block an inquiry. */ }
+    });
+    return out;
+  }
+
+  function cleanTag(value, key) {
+    var text = String(value || '').trim();
+    if (!text || text.length > 200 || /[<>{}\u0000-\u001f]/.test(text)) return '';
+    // Meta IDs are long numeric strings, not phone numbers. Never parse as Number.
+    if (['campaign_id', 'adset_id', 'ad_id', 'utm_id'].indexOf(key) !== -1 && /^\d{1,30}$/.test(text)) return text;
+    if (key === 'fbclid') return /^[A-Za-z0-9_-]+$/.test(text) ? text : '';
+    if (/\d{10,}/.test(text) || /@/.test(text)) return '';
+    return text;
+  }
+
+  function pickedTags(source) {
+    var tags = {};
+    ATTR_KEYS.forEach(function (key) {
+      var value = cleanTag(source[key], key);
+      if (value) tags[key] = value;
+    });
+    return tags;
+  }
+
+  function readCookie(name) {
+    try {
+      var parts = String(document.cookie || '').split(';');
+      for (var i = 0; i < parts.length; i++) {
+        var part = parts[i].trim();
+        if (part.indexOf(name + '=') === 0) return decodeURIComponent(part.slice(name.length + 1));
+      }
+    } catch (error) { /* cookies can be blocked */ }
+    return '';
+  }
+
+  function writeCookie(name, value) {
+    try {
+      var secure = String(window.location.href || '').indexOf('https:') === 0 ? '; Secure' : '';
+      document.cookie = name + '=' + encodeURIComponent(value) + '; Path=/; Max-Age=' + Math.floor(ATTR_MS / 1000) + '; SameSite=Lax' + secure;
+    } catch (error) { /* attribution is optional */ }
+  }
+
+  function loadAttribution() {
+    var raw = readCookie(ATTR_COOKIE);
+    if (!raw) return null;
+    try {
+      var parsed = JSON.parse(raw);
+      if (!parsed || !parsed.expiresAt || parsed.expiresAt < Date.now()) return null;
+      parsed.first = pickedTags(parsed.first || {});
+      parsed.last = pickedTags(parsed.last || {});
+      return parsed;
+    } catch (error) { return null; }
+  }
+
+  function attribution() {
+    var incoming = pickedTags(queryMap(window.location.href));
+    var record = loadAttribution();
+    var now = Date.now();
+    if (!record) {
+      record = { first: incoming, last: incoming, firstAt: now, lastAt: now, expiresAt: now + ATTR_MS };
+    } else if (Object.keys(incoming).length) {
+      record.last = incoming;
+      record.lastAt = now;
+      if (!Object.keys(record.first || {}).length) {
+        record.first = incoming;
+        record.firstAt = now;
+      }
+    }
+    var known = Object.keys(record.first || {}).length || Object.keys(record.last || {}).length;
+    if (known) writeCookie(ATTR_COOKIE, JSON.stringify(record));
+    return {
+      confidence: known ? 'campaign-tags' : 'unknown',
+      first: record.first || {},
+      last: record.last || {},
+      expiresAt: new Date(record.expiresAt).toISOString()
+    };
+  }
+
+  function safeAttribution() {
+    try { return attribution(); }
+    catch (error) { return { confidence: 'unknown', first: {}, last: {} }; }
+  }
+
+  // Capture the tagged landing before the visitor browses away without submitting.
+  safeAttribution();
+
+  function sourceLine(attr) {
+    var tags = Object.keys(attr.first || {}).length ? attr.first : (attr.last || {});
+    var parts = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'campaign_id', 'ad_id'].filter(function (key) {
+      return tags[key];
+    }).map(function (key) { return key + '=' + tags[key]; });
+    return parts.length ? 'Source: ' + parts.join(', ') : 'Source: unknown';
+  }
+
+  function isQa(values) {
+    var first = values.firstName.replace(/\s+/g, ' ').trim().toLowerCase();
+    var last = values.lastName.replace(/\s+/g, ' ').trim().toLowerCase();
+    var name = (first + ' ' + last).trim();
+    if (first === 'qa probe' || last === 'qa probe' || name === 'qa probe' || name === 'qa probe qa probe' || name === 'test thomas') return true;
+    return /(?:\?|&)bb_qa=1(?:&|#|$)/.test(String(window.location.href || ''));
+  }
+
+  function metaConfig() {
+    var cfg = window.BB_META;
+    if (!cfg || cfg.enabled !== true || !cfg.datasetId) return null;
+    return cfg;
+  }
+
+  function track(eventName, eventId) {
+    try {
+      if (!metaConfig() || typeof window.fbq !== 'function') return false;
+      if (eventName === 'Lead') window.fbq('track', 'Lead', {}, { eventID: eventId });
+      else window.fbq('trackCustom', 'CallIntent', {}, { eventID: eventId });
+      return true;
+    } catch (error) { return false; }
+  }
+
+  function deliveryNote(receipt) {
+    var notify = receipt && receipt.notify;
+    if (!notify || typeof notify !== 'object') return '';
+    var failed = [];
+    if (notify.email === false || notify.email === 'failed') failed.push('email');
+    if (notify.sms === false || notify.sms === 'failed') failed.push('text');
+    if (!failed.length) return '';
+    return 'Your request was accepted, but the ' + failed.join(' and ') + ' alert to Max did not confirm. Please call Max so this is not missed. Reference ' + currentLeadId() + '.';
+  }
+
+  function rememberCall(id) {
+    try {
+      var store = sessionStore();
+      if (store) store.setItem('bb_last_call_intent', JSON.stringify({ id: id, at: new Date().toISOString() }));
+    } catch (error) { /* call intent must never block the dialer */ }
+  }
+
+  function recentCallId() {
+    try {
+      var store = sessionStore();
+      var saved = store && store.getItem('bb_last_call_intent');
+      var parsed = saved ? JSON.parse(saved) : null;
+      return parsed && parsed.id ? parsed.id : '';
+    } catch (error) { return ''; }
+  }
+
+  if (typeof document.addEventListener === 'function') {
+    document.addEventListener('click', function (event) {
+      var node = event.target;
+      var link = null;
+      while (node) {
+        if (node.getAttribute && String(node.getAttribute('href') || '').indexOf('tel:') === 0) {
+          link = node;
+          break;
+        }
+        node = node.parentElement || null;
+      }
+      if (!link) return;
+      var id = uuid();
+      rememberCall(id);
+      track('CallIntent', id);
+    }, true);
+  }
+
   fields.forEach(function (name) {
     field(name).addEventListener('input', function () { clearError(name); });
   });
@@ -92,15 +303,23 @@
 
     var controller = new AbortController();
     var timeout = window.setTimeout(function () { controller.abort(); }, 15000);
+    var attr = safeAttribution();
+    var id = currentLeadId();
+    var qa = isQa(values);
     var payload = {
       mode: 'callback',
       firstName: values.firstName,
       lastName: values.lastName,
       name: values.firstName + ' ' + values.lastName,
       phone: values.phone.replace(/\D/g, ''),
-      message: 'Callback request\nName: ' + values.firstName + ' ' + values.lastName + '\nPhone: ' + values.phone + '\nPlease call within 24 hours to arrange a bay time; no slot booked.',
+      message: 'Callback request\nName: ' + values.firstName + ' ' + values.lastName + '\nPhone: ' + values.phone + '\nPlease call within 24 hours to arrange a bay time; no slot booked.\nLead ID: ' + id + '\n' + sourceLine(attr),
       page: window.location.href,
       submittedAt: new Date().toISOString(),
+      leadId: id,
+      eventId: id,
+      qa: qa,
+      attribution: attr,
+      recentCallIntentId: recentCallId(),
       // The existing n8n spam check uses company; retain the non-autofilled field name in HTML.
       company: field('bb_check').value,
       bb_check: field('bb_check').value
@@ -120,6 +339,14 @@
       if (!receipt || receipt.ok !== true) throw new Error('Acceptance not confirmed');
 
       sent = true;
+      if (!qa && receipt.test !== true) track('Lead', id);
+      var warning = document.getElementById('callback-delivery-warning');
+      if (warning) {
+        var note = deliveryNote(receipt);
+        warning.hidden = !note;
+        warning.textContent = note;
+      }
+      clearLeadId();
       document.getElementById('callback-customer-name').textContent = values.firstName;
       document.getElementById('callback-customer-phone').textContent = values.phone;
       entry.hidden = true;
