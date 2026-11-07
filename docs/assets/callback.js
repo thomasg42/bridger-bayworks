@@ -302,6 +302,14 @@
     return 'Your request was accepted, but the ' + failed.join(' and ') + ' alert to Max did not confirm. Please call Max so this is not missed. Reference ' + currentLeadId() + '.';
   }
 
+  function alertsConfirmed(receipt) {
+    var notify = receipt && receipt.notify;
+    if (!notify || typeof notify !== 'object') return false;
+    if (notify.email === false || notify.email === 'failed') return false;
+    if (notify.sms === false || notify.sms === 'failed') return false;
+    return notify.email === 'provider-accepted' || notify.sms === 'provider-accepted';
+  }
+
   function rememberCall(id) {
     try {
       var store = sessionStore();
@@ -402,9 +410,17 @@
         signal: controller.signal,
         credentials: 'omit'
       });
-      if (!response.ok) throw new Error('Request rejected');
-      var receipt = await response.json();
-      if (!receipt || receipt.ok !== true) throw new Error('Acceptance not confirmed');
+      var receipt = null;
+      try { receipt = await response.json(); } catch (parseError) { receipt = null; }
+      if (receipt && (receipt.error === 'receipt_busy' || receipt.status === 'processing')) {
+        showFailure('Your request is still being sent. This does not mean it failed. Your reference is ' + id + '. You can keep this page open, or call or text Max below.');
+        return;
+      }
+      if (receipt && (receipt.error === 'receipt_unknown' || receipt.status === 'unknown')) {
+        showFailure('We could not confirm whether Max was notified. Your reference is ' + id + '. Calling or texting is the sure way to reach him. Sending again will not create another notice while this one is unresolved.');
+        return;
+      }
+      if (!response.ok || !receipt || receipt.ok !== true || receipt.status === 'rejected') throw new Error('Request rejected');
 
       sent = true;
       if (!qa && receipt.test !== true) track('Lead', id);
@@ -414,7 +430,7 @@
         warning.hidden = !note;
         warning.textContent = note;
       }
-      clearLeadId();
+      if (alertsConfirmed(receipt)) clearLeadId();
       document.getElementById('callback-customer-name').textContent = values.firstName;
       document.getElementById('callback-customer-phone').textContent = values.phone;
       entry.hidden = true;
@@ -422,9 +438,13 @@
       document.getElementById('callback-request').setAttribute('aria-labelledby', 'callback-success-heading');
       document.getElementById('callback-success-heading').focus();
     } catch (error) {
-      showFailure(error.name === 'AbortError'
-        ? 'This is taking longer than expected, so we could not confirm your request. Your details are still here. Try again or call Max below.'
-        : 'We could not confirm your request was received. Your details are still here. Please try again, or call or text Max below.');
+      var timedOut = error && error.name === 'AbortError';
+      var rejected = error && error.message === 'Request rejected';
+      showFailure(timedOut
+        ? 'The page stopped waiting, so the result is unknown. Your details are still here. Reference ' + id + '. Call or text Max if you need to be sure.'
+        : rejected
+          ? 'We could not submit this request. Your details are still here. Reference ' + id + '. Please try again, or call or text Max below.'
+          : 'The page did not get a confirmed result, so the outcome is unknown. Your details are still here. Reference ' + id + '. Call or text Max if you need to be sure.');
     } finally {
       window.clearTimeout(timeout);
       setSending(false);
