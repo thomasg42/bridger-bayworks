@@ -12,3 +12,8 @@ elevenlabs-convai {
 @media print {
   elevenlabs-convai { display: none !important; }
 }
+/* Set by shop-voice.js when the voice hands a visitor to Max. */
+.header-call-now.voice-call-hint {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
