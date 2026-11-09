@@ -1,0 +1,14 @@
+/* Lifts the shop voice button above the fixed call, text, and reserve bar. */
+elevenlabs-convai {
+  bottom: 20px !important;
+  z-index: 55;
+}
+@media (max-width: 760px) {
+  elevenlabs-convai {
+    bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+    z-index: 65;
+  }
+}
+@media print {
+  elevenlabs-convai { display: none !important; }
+}
