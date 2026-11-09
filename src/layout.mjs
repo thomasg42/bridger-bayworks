@@ -395,6 +395,7 @@ ${footer(ctx)}
 <script src="${ctx.asset('config.js')}"></script>
 <script src="${ctx.asset('bb-core.js')}"></script>
 <script src="${ctx.asset('site.js')}" defer></script>
+<script src="${ctx.asset('fg-collect.js')}" data-business="bridger-bayworks" defer></script>
 </body>
 </html>
 `;
