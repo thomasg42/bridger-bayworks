@@ -92,6 +92,25 @@
       <p class="cb-eyebrow"><span aria-hidden="true"></span> YOUR LOCAL DIY GARAGE</p>
       <h1 class="cb-title" id="callback-title">CAR TROUBLE?<br><span>WE CAN HELP.</span></h1>
       <p class="cb-intro-copy">Transmission, engine, wheel bearings, or something else? <strong>We got you.</strong><br><small>Talk it through with Max. Understand your options. Find the next step with more peace of mind.</small></p>
+      <script>
+      // Ad visitors see the ad's own promise first (Thomas 2026-11-12: 395 clicks, 0 inquiries when the page said something else).
+      // Only approved ad claims. Text nodes only. Organic visitors keep the page above.
+      (function () {
+        try {
+          var q = new URLSearchParams(location.search);
+          if (q.get('utm_source') !== 'facebook' && !q.get('fbclid')) return;
+          var h = document.getElementById('callback-title');
+          var p = h && h.nextElementSibling;
+          if (!h || !p) return;
+          var span = document.createElement('span'); span.textContent = '$40 AN HOUR.';
+          h.replaceChildren(document.createTextNode('BOOK A BAY.'), document.createElement('br'), span);
+          var strong = document.createElement('strong'); strong.textContent = 'Bring your parts. Use our lift.';
+          var small = document.createElement('small'); small.textContent = 'Leave your number below and Max will call to set your time, or call now.';
+          p.replaceChildren(document.createTextNode('Stop wrenching on your back. It goes faster on a professional lift. '), strong, document.createElement('br'), small);
+          document.documentElement.setAttribute('data-from-ad', '1');
+        } catch (e) { /* the page above still works */ }
+      })();
+      </script>
       <figure class="cb-shop-photo">
         <img src="../assets/photos/bmw-lift-angle.jpg?v=20261104-estimate" width="1536" height="1024" alt="A BMW on a blue lift inside Bridger Bayworks" fetchpriority="high">
         <figcaption><span>ROOM TO WORK.</span><span>201 S Weaver St, Building A · Belgrade</span></figcaption>
